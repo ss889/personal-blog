@@ -1,0 +1,147 @@
+﻿2026-03-04T18:31:08.7663489Z Current runner version: '2.331.0'
+2026-03-04T18:31:08.7689526Z ##[group]Runner Image Provisioner
+2026-03-04T18:31:08.7690335Z Hosted Compute Agent
+2026-03-04T18:31:08.7690952Z Version: 20260213.493
+2026-03-04T18:31:08.7691546Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+2026-03-04T18:31:08.7692252Z Build Date: 2026-02-13T00:28:41Z
+2026-03-04T18:31:08.7693015Z Worker ID: {dbb56afc-7d06-46d3-835a-1d6cb73ba72a}
+2026-03-04T18:31:08.7693697Z Azure Region: westus
+2026-03-04T18:31:08.7694244Z ##[endgroup]
+2026-03-04T18:31:08.7695598Z ##[group]Operating System
+2026-03-04T18:31:08.7696498Z Ubuntu
+2026-03-04T18:31:08.7696944Z 24.04.3
+2026-03-04T18:31:08.7697427Z LTS
+2026-03-04T18:31:08.7697937Z ##[endgroup]
+2026-03-04T18:31:08.7698439Z ##[group]Runner Image
+2026-03-04T18:31:08.7698941Z Image: ubuntu-24.04
+2026-03-04T18:31:08.7699515Z Version: 20260302.42.1
+2026-03-04T18:31:08.7700655Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260302.42/images/ubuntu/Ubuntu2404-Readme.md
+2026-03-04T18:31:08.7702247Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260302.42
+2026-03-04T18:31:08.7703136Z ##[endgroup]
+2026-03-04T18:31:08.7704234Z ##[group]GITHUB_TOKEN Permissions
+2026-03-04T18:31:08.7706348Z Contents: read
+2026-03-04T18:31:08.7706993Z Metadata: read
+2026-03-04T18:31:08.7707544Z Pages: write
+2026-03-04T18:31:08.7708071Z ##[endgroup]
+2026-03-04T18:31:08.7710243Z Secret source: Actions
+2026-03-04T18:31:08.7711111Z Prepare workflow directory
+2026-03-04T18:31:08.8059238Z Prepare all required actions
+2026-03-04T18:31:08.8100163Z Getting action download info
+2026-03-04T18:31:09.2956192Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-03-04T18:31:09.4459424Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-03-04T18:31:09.8642187Z Download action repository 'actions/configure-pages@v5' (SHA:983d7736d9b0ae728b81ab479565c72886d7745b)
+2026-03-04T18:31:10.7690247Z Download action repository 'actions/upload-pages-artifact@v3' (SHA:56afc609e74202658d3ffba0e8f6dda462b719fa)
+2026-03-04T18:31:11.4277535Z Getting action download info
+2026-03-04T18:31:11.6211059Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-03-04T18:31:11.7688751Z Complete job name: build
+2026-03-04T18:31:11.8392202Z ##[group]Run actions/checkout@v4
+2026-03-04T18:31:11.8392804Z with:
+2026-03-04T18:31:11.8393023Z   repository: ss889/personal-blog
+2026-03-04T18:31:11.8393489Z   token: ***
+2026-03-04T18:31:11.8393813Z   ssh-strict: true
+2026-03-04T18:31:11.8394115Z   ssh-user: git
+2026-03-04T18:31:11.8394417Z   persist-credentials: true
+2026-03-04T18:31:11.8394775Z   clean: true
+2026-03-04T18:31:11.8395096Z   sparse-checkout-cone-mode: true
+2026-03-04T18:31:11.8395468Z   fetch-depth: 1
+2026-03-04T18:31:11.8395756Z   fetch-tags: false
+2026-03-04T18:31:11.8396279Z   show-progress: true
+2026-03-04T18:31:11.8396573Z   lfs: false
+2026-03-04T18:31:11.8396902Z   submodules: false
+2026-03-04T18:31:11.8397220Z   set-safe-directory: true
+2026-03-04T18:31:11.8398107Z ##[endgroup]
+2026-03-04T18:31:11.9557324Z Syncing repository: ss889/personal-blog
+2026-03-04T18:31:11.9559468Z ##[group]Getting Git version info
+2026-03-04T18:31:11.9560510Z Working directory is '/home/runner/work/personal-blog/personal-blog'
+2026-03-04T18:31:11.9562205Z [command]/usr/bin/git version
+2026-03-04T18:31:11.9630131Z git version 2.53.0
+2026-03-04T18:31:11.9659069Z ##[endgroup]
+2026-03-04T18:31:11.9675841Z Temporarily overriding HOME='/home/runner/work/_temp/a515e414-1f67-430c-af4f-023006e835b8' before making global git config changes
+2026-03-04T18:31:11.9677451Z Adding repository directory to the temporary git global config as a safe directory
+2026-03-04T18:31:11.9691156Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/personal-blog/personal-blog
+2026-03-04T18:31:11.9734590Z Deleting the contents of '/home/runner/work/personal-blog/personal-blog'
+2026-03-04T18:31:11.9739041Z ##[group]Initializing the repository
+2026-03-04T18:31:11.9743952Z [command]/usr/bin/git init /home/runner/work/personal-blog/personal-blog
+2026-03-04T18:31:11.9872140Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-03-04T18:31:11.9873376Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-03-04T18:31:11.9874222Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-03-04T18:31:11.9874941Z hint: call:
+2026-03-04T18:31:11.9875343Z hint:
+2026-03-04T18:31:11.9875916Z hint: 	git config --global init.defaultBranch <name>
+2026-03-04T18:31:11.9876715Z hint:
+2026-03-04T18:31:11.9877318Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-03-04T18:31:11.9878026Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-03-04T18:31:11.9878571Z hint:
+2026-03-04T18:31:11.9879090Z hint: 	git branch -m <name>
+2026-03-04T18:31:11.9879404Z hint:
+2026-03-04T18:31:11.9879842Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-03-04T18:31:11.9880668Z Initialized empty Git repository in /home/runner/work/personal-blog/personal-blog/.git/
+2026-03-04T18:31:11.9889514Z [command]/usr/bin/git remote add origin https://github.com/ss889/personal-blog
+2026-03-04T18:31:11.9928233Z ##[endgroup]
+2026-03-04T18:31:11.9928824Z ##[group]Disabling automatic garbage collection
+2026-03-04T18:31:11.9932772Z [command]/usr/bin/git config --local gc.auto 0
+2026-03-04T18:31:11.9963329Z ##[endgroup]
+2026-03-04T18:31:11.9963924Z ##[group]Setting up auth
+2026-03-04T18:31:11.9971190Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-03-04T18:31:12.0004998Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-03-04T18:31:12.0369137Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-03-04T18:31:12.0400352Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-03-04T18:31:12.0639768Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-03-04T18:31:12.0675511Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-03-04T18:31:12.0923506Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-03-04T18:31:12.0964208Z ##[endgroup]
+2026-03-04T18:31:12.0964833Z ##[group]Fetching the repository
+2026-03-04T18:31:12.0973517Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d447da2a092c0619ddef079353e4a7aee642bfd5:refs/remotes/origin/master
+2026-03-04T18:31:12.6900313Z From https://github.com/ss889/personal-blog
+2026-03-04T18:31:12.6901366Z  * [new ref]         d447da2a092c0619ddef079353e4a7aee642bfd5 -> origin/master
+2026-03-04T18:31:12.6936324Z ##[endgroup]
+2026-03-04T18:31:12.6937003Z ##[group]Determining the checkout info
+2026-03-04T18:31:12.6939481Z ##[endgroup]
+2026-03-04T18:31:12.6944892Z [command]/usr/bin/git sparse-checkout disable
+2026-03-04T18:31:12.7000102Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-03-04T18:31:12.7032214Z ##[group]Checking out the ref
+2026-03-04T18:31:12.7033093Z [command]/usr/bin/git checkout --progress --force -B master refs/remotes/origin/master
+2026-03-04T18:31:12.7104315Z Reset branch 'master'
+2026-03-04T18:31:12.7107855Z branch 'master' set up to track 'origin/master'.
+2026-03-04T18:31:12.7113993Z ##[endgroup]
+2026-03-04T18:31:12.7152968Z [command]/usr/bin/git log -1 --format=%H
+2026-03-04T18:31:12.7177519Z d447da2a092c0619ddef079353e4a7aee642bfd5
+2026-03-04T18:31:12.7463403Z ##[group]Run actions/setup-node@v4
+2026-03-04T18:31:12.7463900Z with:
+2026-03-04T18:31:12.7464075Z   node-version: 20
+2026-03-04T18:31:12.7464254Z   cache: npm
+2026-03-04T18:31:12.7464429Z   always-auth: false
+2026-03-04T18:31:12.7464632Z   check-latest: false
+2026-03-04T18:31:12.7464953Z   token: ***
+2026-03-04T18:31:12.7465128Z ##[endgroup]
+2026-03-04T18:31:12.9429188Z Found in cache @ /opt/hostedtoolcache/node/20.20.0/x64
+2026-03-04T18:31:12.9430352Z ##[group]Environment details
+2026-03-04T18:31:13.3177893Z node: v20.20.0
+2026-03-04T18:31:13.3178490Z npm: 10.8.2
+2026-03-04T18:31:13.3178890Z yarn: 1.22.22
+2026-03-04T18:31:13.3179879Z ##[endgroup]
+2026-03-04T18:31:13.3204684Z [command]/opt/hostedtoolcache/node/20.20.0/x64/bin/npm config get cache
+2026-03-04T18:31:13.4468114Z /home/runner/.npm
+2026-03-04T18:31:13.7523731Z npm cache is not found
+2026-03-04T18:31:13.7677024Z ##[group]Run actions/configure-pages@v5
+2026-03-04T18:31:13.7677334Z with:
+2026-03-04T18:31:13.7677657Z   token: ***
+2026-03-04T18:31:13.7677843Z   enablement: false
+2026-03-04T18:31:13.7678044Z ##[endgroup]
+2026-03-04T18:31:14.2867934Z ##[error]Get Pages site failed. Please verify that the repository has Pages enabled and configured to build using GitHub Actions, or consider exploring the `enablement` parameter for this action. Error: Not Found - https://docs.github.com/rest/pages/pages#get-a-apiname-pages-site
+2026-03-04T18:31:14.2878150Z ##[error]HttpError: Not Found - https://docs.github.com/rest/pages/pages#get-a-apiname-pages-site
+2026-03-04T18:31:14.3015511Z Post job cleanup.
+2026-03-04T18:31:14.3998036Z [command]/usr/bin/git version
+2026-03-04T18:31:14.4029864Z git version 2.53.0
+2026-03-04T18:31:14.4073484Z Temporarily overriding HOME='/home/runner/work/_temp/3f99b20d-04e8-4f5e-9fb6-e215e3769cb1' before making global git config changes
+2026-03-04T18:31:14.4074795Z Adding repository directory to the temporary git global config as a safe directory
+2026-03-04T18:31:14.4085824Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/personal-blog/personal-blog
+2026-03-04T18:31:14.4120639Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-03-04T18:31:14.4153690Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-03-04T18:31:14.4399116Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-03-04T18:31:14.4421617Z http.https://github.com/.extraheader
+2026-03-04T18:31:14.4434665Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-03-04T18:31:14.4466535Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-03-04T18:31:14.4702023Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-03-04T18:31:14.4733443Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-03-04T18:31:14.5072589Z Cleaning up orphan processes
