@@ -6,14 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "edit": "node blog-editor.js"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
+    "clipboardy": "^5.3.1",
     "gray-matter": "^4.0.3",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "readline-sync": "^1.4.10",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1"
   },
