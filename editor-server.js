@@ -609,32 +609,68 @@ const HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-async function chatWithOllama(messages) {
-  const systemPrompt = `You are a blog content editor. Output ONLY markdown content for blog files.
+// Read current content of all markdown files
+function getCurrentContent() {
+  const files = {};
+  
+  // Read homepage
+  const homepagePath = path.join(CONTENT_DIR, "homepage.md");
+  if (fs.existsSync(homepagePath)) {
+    files.homepage = fs.readFileSync(homepagePath, "utf8");
+  }
+  
+  // Read all posts
+  const postsDir = path.join(CONTENT_DIR, "posts");
+  if (fs.existsSync(postsDir)) {
+    const postFiles = fs.readdirSync(postsDir).filter(f => f.endsWith(".md"));
+    for (const file of postFiles) {
+      const slug = file.replace(".md", "");
+      files[slug] = fs.readFileSync(path.join(postsDir, file), "utf8");
+    }
+  }
+  
+  return files;
+}
 
-CRITICAL FORMAT - Always respond exactly like this:
+async function chatWithOllama(messages) {
+  // Get current content of all files
+  const currentContent = getCurrentContent();
+  const fileList = Object.keys(currentContent);
+  
+  const contentSection = Object.entries(currentContent)
+    .map(([name, content]) => `=== FILE: ${name} ===\n${content}\n=== END ${name} ===`)
+    .join("\n\n");
+
+  const today = new Date().toISOString().split("T")[0];
+  
+  const systemPrompt = `You are a blog content editor. Your job is to EDIT and MODIFY existing content based on user requests.
+
+CURRENT FILES AND THEIR CONTENT:
+${contentSection}
+
+CRITICAL FORMAT - Always respond with the EDITED file content like this:
 
 \`\`\`markdown
-FILE: homepage
+FILE: filename
 ---
-title: Your Title Here
-subtitle: Optional subtitle
+title: The Title
+date: "${today}"
+excerpt: Brief description
 ---
 
-# Main Heading
-
-Your content here with proper markdown formatting.
+Your edited markdown content here.
 \`\`\`
 
 RULES:
-1. Always wrap output in markdown code block
-2. First line inside must be FILE: followed by filename (homepage, hello-world, getting-started-with-nextjs)
-3. Include proper front matter with --- delimiters
-4. For posts, include: title, date (YYYY-MM-DD format), excerpt in front matter
-5. Output COMPLETE file content
-6. After the code block, add a brief message about what you changed.
+1. When user asks to change/edit/update a file, MODIFY the existing content - don't create new files
+2. If user mentions "homepage", edit the homepage file
+3. If user mentions a post name, edit that specific post
+4. For NEW posts only, create a new filename (use lowercase-with-dashes)
+5. Always include proper frontmatter with title, date (${today}), and excerpt
+6. Output the COMPLETE edited file content
+7. After the code block, briefly explain what you changed
 
-Available files: homepage, hello-world, getting-started-with-nextjs`;
+Available files to edit: ${fileList.join(", ")}`;
 
   const fullMessages = [
     { role: "system", content: systemPrompt },
