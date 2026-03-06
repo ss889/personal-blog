@@ -18,13 +18,13 @@ if (!fs.existsSync(TEMP_DIR)) {
 let pipeline = null;
 async function getWhisperPipeline() {
   if (!pipeline) {
-    console.log("Loading Whisper model (first time may take a minute)...");
+    console.log("Loading Whisper model (first time takes 2-3 min)...");
     const { pipeline: createPipeline } = await import("@xenova/transformers");
-    // Using whisper-base for good balance of speed and accuracy
-    pipeline = await createPipeline("automatic-speech-recognition", "Xenova/whisper-base.en", {
+    // Using whisper-small for better accuracy
+    pipeline = await createPipeline("automatic-speech-recognition", "Xenova/whisper-small.en", {
       quantized: true
     });
-    console.log("✓ Whisper model loaded (base.en)");
+    console.log("✓ Whisper model loaded (small.en - high accuracy)");
   }
   return pipeline;
 }
@@ -500,12 +500,22 @@ const HTML = `<!DOCTYPE html>
 
     async function startRecording() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Better audio settings for speech recognition
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            sampleRate: 16000
+          } 
+        });
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         audioChunks = [];
 
         mediaRecorder.ondataavailable = (e) => {
-          audioChunks.push(e.data);
+          if (e.data.size > 0) {
+            audioChunks.push(e.data);
+          }
         };
 
         mediaRecorder.onstop = async () => {
@@ -514,11 +524,12 @@ const HTML = `<!DOCTYPE html>
           await processRecording(audioBlob);
         };
 
-        mediaRecorder.start();
+        // Collect audio data every 100ms to avoid missing start
+        mediaRecorder.start(100);
         isRecording = true;
         recordBtn.classList.add('recording');
         recordBtn.innerHTML = '⏹';
-        addMessage('system', '🎤 Recording... Click again to stop.', true);
+        addMessage('system', '🎤 Recording... Speak now! Click again to stop.', true);
       } catch (err) {
         addMessage('system', '❌ Microphone access denied: ' + err.message, true);
       }
