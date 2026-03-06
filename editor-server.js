@@ -764,7 +764,7 @@ const server = http.createServer(async (req, res) => {
                   
                   // Set remote with token and push
                   execSync(`git remote set-url origin https://${token}@github.com/ss889/personal-blog.git`, { cwd: __dirname });
-                  execSync("git push origin main", { cwd: __dirname, encoding: "utf8" });
+                  execSync("git push origin master", { cwd: __dirname, encoding: "utf8" });
                   
                   // Reset remote URL to not include token
                   execSync("git remote set-url origin https://github.com/ss889/personal-blog.git", { cwd: __dirname });
