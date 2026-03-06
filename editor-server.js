@@ -20,8 +20,11 @@ async function getWhisperPipeline() {
   if (!pipeline) {
     console.log("Loading Whisper model (first time may take a minute)...");
     const { pipeline: createPipeline } = await import("@xenova/transformers");
-    pipeline = await createPipeline("automatic-speech-recognition", "Xenova/whisper-tiny.en");
-    console.log("✓ Whisper model loaded");
+    // Using whisper-base for good balance of speed and accuracy
+    pipeline = await createPipeline("automatic-speech-recognition", "Xenova/whisper-base.en", {
+      quantized: true
+    });
+    console.log("✓ Whisper model loaded (base.en)");
   }
   return pipeline;
 }
@@ -724,20 +727,47 @@ const server = http.createServer(async (req, res) => {
           try {
             const { execSync } = require("child_process");
             const envPath = path.join(__dirname, "..", ".env");
-            const envContent = fs.readFileSync(envPath, "utf8");
-            const tokenMatch = envContent.match(/GITHUB_API_TOKEN=(.+)/);
-            const token = tokenMatch ? tokenMatch[1].trim() : null;
-
-            if (token) {
-              execSync("git add -A", { cwd: __dirname });
-              execSync('git commit -m "Update blog content"', { cwd: __dirname });
-              execSync(`git remote set-url origin https://${token}@github.com/ss889/personal-blog.git`, { cwd: __dirname });
-              execSync("git push", { cwd: __dirname });
-              execSync("git remote set-url origin https://github.com/ss889/personal-blog.git", { cwd: __dirname });
-              pushed = true;
-              console.log("✓ Auto-pushed to GitHub");
+            
+            if (!fs.existsSync(envPath)) {
+              pushError = ".env file not found";
             } else {
-              pushError = "No GitHub token found";
+              const envContent = fs.readFileSync(envPath, "utf8");
+              const tokenMatch = envContent.match(/GITHUB_API_TOKEN=(.+)/);
+              const token = tokenMatch ? tokenMatch[1].trim() : null;
+
+              if (token) {
+                console.log("Pushing to GitHub...");
+                
+                // Check if there are changes to commit
+                const status = execSync("git status --porcelain", { cwd: __dirname, encoding: "utf8" });
+                
+                if (status.trim()) {
+                  execSync("git add -A", { cwd: __dirname });
+                  
+                  try {
+                    execSync('git commit -m "Update blog content"', { cwd: __dirname });
+                  } catch (commitErr) {
+                    // Commit might fail if no changes, that's ok
+                    console.log("No new changes to commit");
+                  }
+                  
+                  // Set remote with token and push
+                  execSync(`git remote set-url origin https://${token}@github.com/ss889/personal-blog.git`, { cwd: __dirname });
+                  execSync("git push origin main", { cwd: __dirname, encoding: "utf8" });
+                  
+                  // Reset remote URL to not include token
+                  execSync("git remote set-url origin https://github.com/ss889/personal-blog.git", { cwd: __dirname });
+                  
+                  pushed = true;
+                  console.log("✓ Auto-pushed to GitHub successfully!");
+                } else {
+                  console.log("No changes to push");
+                  pushed = true; // File was saved, just no git changes
+                }
+              } else {
+                pushError = "No GitHub token found in .env";
+                console.error(pushError);
+              }
             }
           } catch (e) {
             pushError = e.message;
