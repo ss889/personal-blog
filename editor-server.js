@@ -177,12 +177,14 @@ const HTML = `<!DOCTYPE html>
     <div class="input-container">
       <input type="text" id="input" placeholder="Tell me what to change..." autofocus>
       <button id="send">Send</button>
+      <button id="push" style="background:#22c55e">Push to GitHub</button>
     </div>
   </div>
   <script>
     const chat = document.getElementById('chat');
     const input = document.getElementById('input');
     const sendBtn = document.getElementById('send');
+    const pushBtn = document.getElementById('push');
     let history = [];
 
     function addMessage(role, content, isSystem = false) {
@@ -243,7 +245,26 @@ const HTML = `<!DOCTYPE html>
       input.focus();
     }
 
+    async function pushToGithub() {
+      pushBtn.disabled = true;
+      pushBtn.textContent = 'Pushing...';
+      try {
+        const res = await fetch('/push', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          addMessage('system', '✓ Pushed to GitHub! Site will update in ~2 minutes.', true);
+        } else {
+          addMessage('system', '❌ Push failed: ' + (data.error || 'Unknown error'), true);
+        }
+      } catch (err) {
+        addMessage('system', '❌ Push failed: ' + err.message, true);
+      }
+      pushBtn.disabled = false;
+      pushBtn.textContent = 'Push to GitHub';
+    }
+
     sendBtn.onclick = send;
+    pushBtn.onclick = pushToGithub;
     input.onkeydown = (e) => { if (e.key === 'Enter') send(); };
   </script>
 </body>
@@ -377,6 +398,39 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: err.message }));
       }
     });
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/push") {
+    const { execSync } = require("child_process");
+    try {
+      // Read token from .env file
+      const envPath = path.join(__dirname, "..", ".env");
+      const envContent = fs.readFileSync(envPath, "utf8");
+      const tokenMatch = envContent.match(/GITHUB_API_TOKEN=(.+)/);
+      const token = tokenMatch ? tokenMatch[1].trim() : null;
+
+      if (!token) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: "No GitHub token found" }));
+        return;
+      }
+
+      execSync("git add -A", { cwd: __dirname });
+      execSync('git commit -m "Update blog content"', { cwd: __dirname });
+      execSync(`git remote set-url origin https://${token}@github.com/ss889/personal-blog.git`, { cwd: __dirname });
+      execSync("git push", { cwd: __dirname });
+      // Reset remote URL to not include token
+      execSync("git remote set-url origin https://github.com/ss889/personal-blog.git", { cwd: __dirname });
+
+      console.log("✓ Pushed to GitHub");
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true }));
+    } catch (err) {
+      console.error("Push error:", err.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
     return;
   }
 
