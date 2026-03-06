@@ -1,142 +1,331 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { spawn } = require("child_process");
 
 const PORT = 3001;
 const OLLAMA_URL = "http://localhost:11434";
 const CONTENT_DIR = path.join(__dirname, "content");
 const MODEL_NAME = "blog-editor";
+const TEMP_DIR = path.join(__dirname, "temp");
+
+// Ensure temp directory exists
+if (!fs.existsSync(TEMP_DIR)) {
+  fs.mkdirSync(TEMP_DIR, { recursive: true });
+}
+
+// Whisper transcription using @xenova/transformers
+let pipeline = null;
+async function getWhisperPipeline() {
+  if (!pipeline) {
+    console.log("Loading Whisper model (first time may take a minute)...");
+    const { pipeline: createPipeline } = await import("@xenova/transformers");
+    pipeline = await createPipeline("automatic-speech-recognition", "Xenova/whisper-tiny.en");
+    console.log("✓ Whisper model loaded");
+  }
+  return pipeline;
+}
+
+// Parse multipart form data for audio upload
+function parseMultipart(buffer, boundary) {
+  const parts = [];
+  const boundaryBuffer = Buffer.from("--" + boundary);
+  
+  let start = buffer.indexOf(boundaryBuffer) + boundaryBuffer.length + 2;
+  while (true) {
+    const end = buffer.indexOf(boundaryBuffer, start);
+    if (end === -1) break;
+    
+    const part = buffer.slice(start, end - 2);
+    const headerEnd = part.indexOf("\\r\\n\\r\\n");
+    if (headerEnd === -1) {
+      const headerEnd2 = part.indexOf(Buffer.from([13, 10, 13, 10]));
+      if (headerEnd2 !== -1) {
+        const data = part.slice(headerEnd2 + 4);
+        parts.push({ data });
+      }
+    } else {
+      const data = part.slice(headerEnd + 4);
+      parts.push({ data });
+    }
+    start = end + boundaryBuffer.length + 2;
+  }
+  return parts;
+}
 
 const HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog Editor - Ollama</title>
+  <title>Blog Editor</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #1a1a1a;
-      color: #e5e5e5;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+      color: #f0f0f0;
       height: 100vh;
       display: flex;
       flex-direction: column;
     }
+    
     header {
-      background: #2d2d2d;
-      padding: 16px 24px;
-      border-bottom: 1px solid #404040;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      padding: 16px 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
-    header h1 { font-size: 18px; font-weight: 600; }
+    
+    header h1 { 
+      font-size: 17px; 
+      font-weight: 600;
+      background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.3px;
+    }
+    
     header .model { 
-      background: #4a4a4a; 
-      padding: 4px 12px; 
-      border-radius: 12px; 
-      font-size: 12px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      padding: 5px 14px; 
+      border-radius: 20px; 
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
+    
     .status {
       margin-left: auto;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 13px;
-      color: #888;
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
     }
+    
     .status .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #22c55e;
+      box-shadow: 0 0 12px #22c55e;
+      animation: glow 2s ease-in-out infinite;
     }
+    
+    @keyframes glow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .auto-push {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: 20px;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      font-size: 12px;
+      color: #888;
+      transition: all 0.2s ease;
+    }
+    
+    .auto-push:hover {
+      background: rgba(255,255,255,0.07);
+    }
+    
+    .auto-push input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #22c55e;
+    }
+    
+    .auto-push-label {
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    .files {
+      padding: 10px 28px;
+      background: rgba(0,0,0,0.2);
+      font-size: 12px;
+      color: #555;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    
+    .files span { 
+      color: #60a5fa;
+      background: rgba(96,165,250,0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .files span:hover {
+      background: rgba(96,165,250,0.2);
+    }
+    
     .chat {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 28px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
+      scroll-behavior: smooth;
     }
+    
+    .chat::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .chat::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .chat::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+    
     .message {
-      max-width: 80%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      line-height: 1.5;
+      max-width: 75%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      line-height: 1.6;
+      font-size: 14px;
+      animation: fadeIn 0.3s ease;
     }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
     .message.user {
       align-self: flex-end;
-      background: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       color: white;
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 4px 20px rgba(59,130,246,0.3);
     }
+    
     .message.assistant {
       align-self: flex-start;
-      background: #2d2d2d;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-bottom-left-radius: 6px;
     }
+    
     .message.system {
       align-self: center;
-      background: #22c55e22;
-      border: 1px solid #22c55e44;
-      color: #22c55e;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.2);
+      color: #4ade80;
       font-size: 13px;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-weight: 500;
     }
+    
     .message pre {
-      background: #1a1a1a;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 8px;
+      background: rgba(0,0,0,0.3);
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 10px;
       overflow-x: auto;
       font-size: 13px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      border: 1px solid rgba(255,255,255,0.05);
     }
+    
     .input-area {
-      padding: 16px 24px;
-      background: #2d2d2d;
-      border-top: 1px solid #404040;
+      padding: 20px 28px;
+      background: rgba(255,255,255,0.02);
+      border-top: 1px solid rgba(255,255,255,0.05);
     }
+    
     .input-container {
       display: flex;
       gap: 12px;
       max-width: 900px;
       margin: 0 auto;
+      align-items: center;
     }
-    input {
+    
+    input[type="text"] {
       flex: 1;
-      background: #1a1a1a;
-      border: 1px solid #404040;
-      border-radius: 8px;
-      padding: 12px 16px;
-      color: #e5e5e5;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px 20px;
+      color: #f0f0f0;
       font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
-    input:focus { outline: none; border-color: #3b82f6; }
+    
+    input[type="text"]:focus { 
+      outline: none; 
+      border-color: rgba(59,130,246,0.5);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    input[type="text"]::placeholder {
+      color: #555;
+    }
+    
     button {
-      background: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
+      border-radius: 12px;
+      padding: 14px 28px;
       color: white;
       font-weight: 600;
+      font-size: 14px;
       cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
     }
-    button:hover { background: #2563eb; }
-    button:disabled { background: #4a4a4a; cursor: not-allowed; }
-    .files {
-      padding: 8px 24px;
-      background: #252525;
-      font-size: 12px;
-      color: #888;
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
+    
+    button:hover { 
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(59,130,246,0.4);
     }
-    .files span { color: #3b82f6; }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled { 
+      background: #333;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
     .typing {
       display: flex;
-      gap: 4px;
-      padding: 12px 16px;
+      gap: 5px;
+      padding: 14px 18px;
+      align-items: center;
     }
+    
     .typing span {
       width: 8px;
       height: 8px;
@@ -144,48 +333,95 @@ const HTML = `<!DOCTYPE html>
       border-radius: 50%;
       animation: bounce 1.4s infinite;
     }
+    
     .typing span:nth-child(2) { animation-delay: 0.2s; }
     .typing span:nth-child(3) { animation-delay: 0.4s; }
+    
     @keyframes bounce {
       0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-8px); }
+      30% { transform: translateY(-6px); }
+    }
+    
+    .record-btn {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      padding: 0;
+      box-shadow: 0 4px 20px rgba(239,68,68,0.3);
+      transition: all 0.2s ease;
+    }
+    
+    .record-btn:hover { 
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px rgba(239,68,68,0.4);
+    }
+    
+    .record-btn.recording {
+      animation: pulse 1.5s infinite;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+      50% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+    }
+    
+    .recording-status {
+      color: #ef4444;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>📝 Blog Editor</h1>
-    <span class="model">blog-editor</span>
+    <h1>✨ Blog Editor</h1>
+    <span class="model">AI Powered</span>
     <div class="status">
       <span class="dot"></span>
-      Connected to Ollama
+      Connected
     </div>
+    <label class="auto-push">
+      <input type="checkbox" id="autoPush" checked>
+      <span class="auto-push-label">Auto-deploy</span>
+    </label>
   </header>
   <div class="files">
-    Available files: <span>homepage</span> <span>posts/hello-world</span> <span>posts/getting-started-with-nextjs</span>
+    <span style="background:none;color:#555;padding:0;">Files:</span>
+    <span>homepage</span>
+    <span>hello-world</span>
+    <span>getting-started-with-nextjs</span>
   </div>
   <div class="chat" id="chat">
     <div class="message assistant">
-      Hi! I'm your blog editor. Tell me what content you'd like to change. For example:
+      Hey! I'm your AI blog editor. What would you like to create or update?
       <br><br>
-      • "Update the homepage to be more casual"<br>
-      • "Write a new post about JavaScript tips"<br>
-      • "Change hello-world post to talk about my coding journey"
+      <span style="color:#888">Try something like:</span><br>
+      • "Write a post about my weekend project"<br>
+      • "Make the homepage more personal"<br>
+      • "Update hello-world with my story"
     </div>
   </div>
   <div class="input-area">
     <div class="input-container">
-      <input type="text" id="input" placeholder="Tell me what to change..." autofocus>
+      <button id="record" class="record-btn" title="Record voice">🎤</button>
+      <input type="text" id="input" placeholder="What would you like to write about?" autofocus>
       <button id="send">Send</button>
-      <button id="push" style="background:#22c55e">Push to GitHub</button>
     </div>
   </div>
   <script>
     const chat = document.getElementById('chat');
     const input = document.getElementById('input');
     const sendBtn = document.getElementById('send');
-    const pushBtn = document.getElementById('push');
+    const autoPushCheckbox = document.getElementById('autoPush');
     let history = [];
+    let autoPushEnabled = true;
 
     function addMessage(role, content, isSystem = false) {
       const div = document.createElement('div');
@@ -225,13 +461,18 @@ const HTML = `<!DOCTYPE html>
         const res = await fetch('/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: history })
+          body: JSON.stringify({ messages: history, autoPush: autoPushEnabled })
         });
         const data = await res.json();
         hideTyping();
 
         if (data.fileUpdated) {
           addMessage('system', '✓ Updated: ' + data.fileUpdated, true);
+          if (data.pushed) {
+            addMessage('system', '✓ Pushed to GitHub! Site updating...', true);
+          } else if (data.pushError) {
+            addMessage('system', '❌ Auto-push failed: ' + data.pushError, true);
+          }
         }
         
         addMessage('assistant', data.response);
@@ -245,26 +486,110 @@ const HTML = `<!DOCTYPE html>
       input.focus();
     }
 
-    async function pushToGithub() {
-      pushBtn.disabled = true;
-      pushBtn.textContent = 'Pushing...';
+    autoPushCheckbox.onchange = () => {
+      autoPushEnabled = autoPushCheckbox.checked;
+    };
+    // Voice Recording
+    const recordBtn = document.getElementById('record');
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    async function startRecording() {
       try {
-        const res = await fetch('/push', { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          addMessage('system', '✓ Pushed to GitHub! Site will update in ~2 minutes.', true);
-        } else {
-          addMessage('system', '❌ Push failed: ' + (data.error || 'Unknown error'), true);
-        }
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+          audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          stream.getTracks().forEach(track => track.stop());
+          await processRecording(audioBlob);
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        recordBtn.classList.add('recording');
+        recordBtn.innerHTML = '⏹';
+        addMessage('system', '🎤 Recording... Click again to stop.', true);
       } catch (err) {
-        addMessage('system', '❌ Push failed: ' + err.message, true);
+        addMessage('system', '❌ Microphone access denied: ' + err.message, true);
       }
-      pushBtn.disabled = false;
-      pushBtn.textContent = 'Push to GitHub';
     }
 
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordBtn.classList.remove('recording');
+        recordBtn.innerHTML = '🎤';
+      }
+    }
+
+    async function processRecording(audioBlob) {
+      addMessage('system', '📝 Transcribing...', true);
+      showTyping();
+
+      try {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.webm');
+
+        const res = await fetch('/transcribe', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        hideTyping();
+
+        if (data.error) {
+          addMessage('system', '❌ Transcription failed: ' + data.error, true);
+          return;
+        }
+
+        addMessage('system', '✓ Transcribed: \"' + data.transcription + '\"', true);
+        
+        // Now send to LLM to format as blog post
+        const prompt = 'Create a blog post from this spoken content: ' + data.transcription;
+        addMessage('user', prompt);
+        history.push({ role: 'user', content: prompt });
+
+        showTyping();
+        const chatRes = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history, autoPush: autoPushEnabled })
+        });
+        const chatData = await chatRes.json();
+        hideTyping();
+
+        if (chatData.fileUpdated) {
+          addMessage('system', '✓ Updated: ' + chatData.fileUpdated, true);
+          if (chatData.pushed) {
+            addMessage('system', '✓ Pushed to GitHub! Site updating...', true);
+          } else if (chatData.pushError) {
+            addMessage('system', '❌ Auto-push failed: ' + chatData.pushError, true);
+          }
+        }
+        addMessage('assistant', chatData.response);
+        history.push({ role: 'assistant', content: chatData.response });
+      } catch (err) {
+        hideTyping();
+        addMessage('system', '❌ Error: ' + err.message, true);
+      }
+    }
+
+    recordBtn.onclick = () => {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    };
     sendBtn.onclick = send;
-    pushBtn.onclick = pushToGithub;
     input.onkeydown = (e) => { if (e.key === 'Enter') send(); };
   </script>
 </body>
@@ -384,15 +709,44 @@ const server = http.createServer(async (req, res) => {
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       try {
-        const { messages } = JSON.parse(body);
+        const { messages, autoPush } = JSON.parse(body);
         const response = await chatWithOllama(messages);
         const fileUpdated = extractAndApplyJson(response);
 
         // Remove JSON block from displayed response
         const cleanResponse = response.replace(/```json[\s\S]*?```\s*/g, "").trim();
 
+        let pushed = false;
+        let pushError = null;
+        
+        // Auto-push if enabled and file was updated
+        if (autoPush && fileUpdated) {
+          try {
+            const { execSync } = require("child_process");
+            const envPath = path.join(__dirname, "..", ".env");
+            const envContent = fs.readFileSync(envPath, "utf8");
+            const tokenMatch = envContent.match(/GITHUB_API_TOKEN=(.+)/);
+            const token = tokenMatch ? tokenMatch[1].trim() : null;
+
+            if (token) {
+              execSync("git add -A", { cwd: __dirname });
+              execSync('git commit -m "Update blog content"', { cwd: __dirname });
+              execSync(`git remote set-url origin https://${token}@github.com/ss889/personal-blog.git`, { cwd: __dirname });
+              execSync("git push", { cwd: __dirname });
+              execSync("git remote set-url origin https://github.com/ss889/personal-blog.git", { cwd: __dirname });
+              pushed = true;
+              console.log("✓ Auto-pushed to GitHub");
+            } else {
+              pushError = "No GitHub token found";
+            }
+          } catch (e) {
+            pushError = e.message;
+            console.error("Auto-push error:", e.message);
+          }
+        }
+
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ response: cleanResponse || "Done!", fileUpdated }));
+        res.end(JSON.stringify({ response: cleanResponse || "Done!", fileUpdated, pushed, pushError }));
       } catch (err) {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: err.message }));
@@ -431,6 +785,84 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ success: false, error: err.message }));
     }
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/transcribe") {
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(chunk));
+    req.on("end", async () => {
+      try {
+        const buffer = Buffer.concat(chunks);
+        
+        // Get boundary from content-type
+        const contentType = req.headers["content-type"] || "";
+        const boundaryMatch = contentType.match(/boundary=(.+)/);
+        if (!boundaryMatch) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "No boundary found" }));
+          return;
+        }
+        
+        // Find audio data in multipart
+        const boundary = boundaryMatch[1];
+        const boundaryBuffer = Buffer.from("--" + boundary);
+        const startMarker = Buffer.from("\r\n\r\n");
+        
+        let audioStart = buffer.indexOf(boundaryBuffer) + boundaryBuffer.length;
+        audioStart = buffer.indexOf(startMarker, audioStart) + 4;
+        const audioEnd = buffer.indexOf(boundaryBuffer, audioStart) - 2;
+        const audioData = buffer.slice(audioStart, audioEnd);
+        
+        // Save audio to temp file
+        const tempFile = path.join(TEMP_DIR, "recording.webm");
+        fs.writeFileSync(tempFile, audioData);
+        console.log("Saved audio:", audioData.length, "bytes");
+        
+        // Use ffmpeg to convert to wav if available, otherwise transcribe directly
+        const wavFile = path.join(TEMP_DIR, "recording.wav");
+        
+        // Try to convert with ffmpeg
+        try {
+          const { execSync } = require("child_process");
+          execSync(`ffmpeg -y -i "${tempFile}" -ar 16000 -ac 1 -c:a pcm_s16le "${wavFile}"`, { stdio: "ignore" });
+          console.log("Converted to WAV");
+        } catch (e) {
+          console.log("ffmpeg not available, using webm directly");
+        }
+        
+        // Use Whisper to transcribe
+        const whisper = await getWhisperPipeline();
+        const audioPath = fs.existsSync(wavFile) ? wavFile : tempFile;
+        
+        // Read WAV file and convert to Float32Array for Whisper
+        const wavBuffer = fs.readFileSync(audioPath);
+        
+        // Parse WAV header to get audio data
+        // WAV format: RIFF header (44 bytes) + raw PCM data
+        const dataStart = wavBuffer.indexOf(Buffer.from("data")) + 8;
+        const pcmData = wavBuffer.slice(dataStart);
+        
+        // Convert 16-bit PCM to Float32Array
+        const floatData = new Float32Array(pcmData.length / 2);
+        for (let i = 0; i < floatData.length; i++) {
+          const sample = pcmData.readInt16LE(i * 2);
+          floatData[i] = sample / 32768.0;
+        }
+        
+        const result = await whisper(floatData);
+        const transcription = result.text || result;
+        
+        console.log("Transcription:", transcription);
+        
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ transcription: transcription.trim() }));
+      } catch (err) {
+        console.error("Transcription error:", err);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
     return;
   }
 

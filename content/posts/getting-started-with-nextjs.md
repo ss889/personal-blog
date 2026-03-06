@@ -1,28 +1,18 @@
 ---
 title: Getting Started with Next.js
-date: "2026-03-04"
-excerpt: A quick guide to setting up your first Next.js project.
+subtitle: A guide to setting up your first Next.js application
+date: 2022-10-01
+excerpt: Learn the basics of using Next.js, a popular React framework for building server-side rendered applications.
 ---
 
 # Getting Started with Next.js
 
-Next.js is a powerful React framework that makes building web applications a breeze.
+Next.js is a powerful and easy-to-use React framework that enables developers to build server-side rendered applications with ease. In this guide, we will walk you through the steps of setting up your first Next.js application.
 
-## Why Next.js?
+## Prerequisites
 
-- **Server-side rendering** - Better SEO and performance
-- **Static site generation** - Deploy anywhere
-- **File-based routing** - Intuitive and simple
-- **Built-in optimizations** - Images, fonts, and more
+Before getting started, make sure you have Node.js installed on your system and that you are familiar with React. You can download Node.js from [official website](https://nodejs.org/).
 
-## Quick Setup
+## Creating a New Project
 
-```bash
-npx create-next-app@latest my-app
-cd my-app
-npm run dev
-```
-
-## Conclusion
-
-Next.js is an excellent choice for modern web development. Give it a try!
+To create a new Next.js project, you can use the `create-next-app` command which is included in the Next.js package.
