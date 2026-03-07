@@ -1,21 +1,68 @@
+/**
+ * Blog Editor Electron Main Process
+ * Desktop application wrapper for the blog editor
+ */
+
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 
-let mainWindow;
-let serverProcess;
+// Application Configuration
+const APP_CONFIG = {
+  width: 1200,
+  height: 800,
+  title: 'Blog Editor',
+  serverStartupTimeout: 3000,
+  serverPort: 3001
+};
 
+/** @type {BrowserWindow|null} */
+let mainWindow = null;
+
+/** @type {ChildProcess|null} */
+let serverProcess = null;
+
+/**
+ * Path to the server entry point
+ * @returns {string} Absolute path to server.js
+ */
+function getServerPath() {
+  return path.join(__dirname, 'server.js');
+}
+
+/**
+ * Path to the application icon
+ * @returns {string} Absolute path to favicon.ico
+ */
+function getIconPath() {
+  return path.join(__dirname, 'public', 'favicon.ico');
+}
+
+/**
+ * URL for the local server
+ * @returns {string} Server URL
+ */
+function getServerUrl() {
+  return `http://localhost:${APP_CONFIG.serverPort}`;
+}
+
+/**
+ * Starts the Node.js server as a child process
+ * @returns {Promise<void>} Resolves when server is ready
+ */
 function startServer() {
   return new Promise((resolve) => {
-    const serverPath = path.join(__dirname, 'editor-server.js');
-    serverProcess = spawn('node', [serverPath], {
+    serverProcess = spawn('node', [getServerPath()], {
       cwd: __dirname,
       stdio: ['ignore', 'pipe', 'pipe']
     });
 
     serverProcess.stdout.on('data', (data) => {
-      console.log(`Server: ${data}`);
-      if (data.toString().includes('running at')) {
+      const output = data.toString();
+      console.log(`Server: ${output}`);
+      
+      // Resolve immediately when we see the server is ready
+      if (output.includes('running at')) {
         resolve();
       }
     });
@@ -24,56 +71,76 @@ function startServer() {
       console.error(`Server Error: ${data}`);
     });
 
-    // Give server time to start
-    setTimeout(resolve, 2000);
+    // Fallback timeout in case 'running at' message is missed
+    setTimeout(resolve, APP_CONFIG.serverStartupTimeout);
   });
 }
 
-async function createWindow() {
-  await startServer();
+/**
+ * Stops the server process if running
+ */
+function stopServer() {
+  if (serverProcess) {
+    serverProcess.kill();
+    serverProcess = null;
+  }
+}
 
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    title: 'Blog Editor',
-    icon: path.join(__dirname, 'public', 'favicon.ico'),
+/**
+ * Creates the main application window
+ * @returns {BrowserWindow} The created window
+ */
+function createMainWindow() {
+  const window = new BrowserWindow({
+    width: APP_CONFIG.width,
+    height: APP_CONFIG.height,
+    title: APP_CONFIG.title,
+    icon: getIconPath(),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true
     }
   });
 
-  mainWindow.loadURL('http://localhost:3001');
+  // Load the server URL
+  window.loadURL(getServerUrl());
 
-  // Open external links in browser
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  // Open external links in the default browser
+  window.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
   });
 
-  mainWindow.on('closed', () => {
+  // Clean up reference on close
+  window.on('closed', () => {
     mainWindow = null;
   });
+
+  return window;
 }
 
-app.whenReady().then(createWindow);
+/**
+ * Initializes the application - starts server and creates window
+ */
+async function initializeApp() {
+  await startServer();
+  mainWindow = createMainWindow();
+}
+
+// Application lifecycle handlers
+app.whenReady().then(initializeApp);
 
 app.on('window-all-closed', () => {
-  if (serverProcess) {
-    serverProcess.kill();
-  }
+  stopServer();
   app.quit();
 });
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow();
+    initializeApp();
   }
 });
 
-// Clean up server on exit
 app.on('before-quit', () => {
-  if (serverProcess) {
-    serverProcess.kill();
-  }
+  stopServer();
 });

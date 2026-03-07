@@ -1,8 +1,9 @@
 ---
-title: Welcome to Our Casual Corner! 🎉
-subtitle: Your go-to destination for all things fun and friendly.
+title: Welcome to My Portfolio 🌐
+subtitle: Explore my projects, passions, and professional journey!
 ---
 
-## Hey there, Friend! 🤝
+## Hello There! 🤝
 
-Welcome to our cozy corner of the internet where we share everything from tips and tricks, laughs and learnings, and much more. Dive in, make yourself at home, and let's have a great time together!
+Welcome to my digital portfolio where I showcase a variety of projects and share insights into my work. Feel free to browse around and delve deeper into the realms of web development, design, and more. Let's embark on this captivating journey together!
+=== END homepage ===
