@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "My Personal Blog",
-  description: "A personal blog sharing thoughts on technology, programming, and life",
+  title: "IronGiant — Developer Portfolio",
+  description: "Software developer portfolio and blog",
 };
 
 export default function RootLayout({
@@ -24,10 +25,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <nav className="nav">
+          <Link href="/" className="nav-brand">IronGiant.dev</Link>
+          <ul className="nav-links">
+            <li><Link href="/">Home</Link></li>
+            <li><Link href="/blog">Blog</Link></li>
+            <li>
+              <a
+                href="https://github.com/ss889"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+            </li>
+          </ul>
+        </nav>
         {children}
+        <footer className="footer">
+          Built with Next.js &amp; deployed on GitHub Pages
+        </footer>
       </body>
     </html>
   );

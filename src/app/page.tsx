@@ -1,52 +1,81 @@
-import { getHomepageData, getAllPosts } from "@/lib/markdown";
+import { getAllPosts } from "@/lib/markdown";
 import Link from "next/link";
 
+const SKILLS = [
+  "TypeScript", "React", "Next.js", "Node.js",
+  "Python", "Electron", "Tailwind CSS", "Git",
+];
+
 export default async function Home() {
-  const homepage = await getHomepageData();
   const posts = getAllPosts();
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
-      <header className="mb-12 text-center">
-        <h1 className="text-4xl font-bold mb-2">{homepage.title}</h1>
-        {homepage.subtitle && (
-          <p className="text-xl text-gray-600 dark:text-gray-400">
-            {homepage.subtitle}
-          </p>
-        )}
-      </header>
+    <>
+      {/* Hero */}
+      <section className="hero">
+        <div className="hero-badge">
+          <span>•</span> Open to opportunities
+        </div>
+        <h1>
+          Hi, I&apos;m <span>Saber</span>
+        </h1>
+        <p>
+          Software developer who builds useful things. I write about web
+          development, software engineering, and personal projects.
+        </p>
+        <div className="hero-buttons">
+          <Link href="/blog" className="btn-primary">
+            Read the blog →
+          </Link>
+          <a
+            href="https://github.com/ss889"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary"
+          >
+            GitHub
+          </a>
+        </div>
+      </section>
 
-      <article
-        className="prose dark:prose-invert max-w-none mb-16"
-        dangerouslySetInnerHTML={{ __html: homepage.content }}
-      />
+      <hr className="divider" />
 
-      <section>
-        <h2 className="text-2xl font-bold mb-6 border-b pb-2">Latest Posts</h2>
-        <div className="space-y-6">
-          {posts.map((post) => (
-            <article key={post.slug} className="group">
-              <Link href={`/blog/${post.slug}`} className="block">
-                <h3 className="text-xl font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {post.title}
-                </h3>
-                <time className="text-sm text-gray-500 dark:text-gray-400">
-                  {new Date(post.date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </time>
-                {post.excerpt && (
-                  <p className="mt-2 text-gray-600 dark:text-gray-300">
-                    {post.excerpt}
-                  </p>
-                )}
-              </Link>
-            </article>
+      {/* Skills */}
+      <section className="section" style={{ paddingBottom: "2rem" }}>
+        <p className="section-label">Tech Stack</p>
+        <h2 className="section-title">What I work with</h2>
+        <p className="section-subtitle">Technologies I use day-to-day</p>
+        <div className="skills-grid">
+          {SKILLS.map((skill) => (
+            <span key={skill} className="skill-tag">{skill}</span>
           ))}
         </div>
       </section>
-    </main>
+
+      <hr className="divider" />
+
+      {/* Posts */}
+      <section className="section">
+        <p className="section-label">Writing</p>
+        <h2 className="section-title">Latest Posts</h2>
+        <p className="section-subtitle">Thoughts on code, projects, and more</p>
+        <div className="posts-grid">
+          {posts.map((post) => (
+            <Link key={post.slug} href={`/blog/${post.slug}`} className="post-card">
+              <div className="post-card-date">
+                {new Date(post.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+              <h3>{post.title}</h3>
+              {post.excerpt && <p>{post.excerpt}</p>}
+              <div className="post-card-arrow">Read more →</div>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
