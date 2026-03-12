@@ -9,7 +9,7 @@
 <body>
   <header>
     <h1>✨ Blog Editor</h1>
-    <span class="model">AI Powered</span>
+    <span class="model" id="modeLabel">Content Mode</span>
     <div class="status">
       <span class="dot"></span>
       Connected
@@ -20,11 +20,25 @@
     </label>
   </header>
 
-  <div class="files">
+  <div class="mode-tabs">
+    <button class="mode-tab active-content" id="tabContent" onclick="setMode('content')">✏️ Content</button>
+    <button class="mode-tab" id="tabDesign" onclick="setMode('design')">🎨 Design</button>
+  </div>
+
+  <div class="files" id="filesBar">
     <span style="background:none;color:#555;padding:0;">Files:</span>
     <span>homepage</span>
     <span>hello-world</span>
     <span>getting-started-with-nextjs</span>
+  </div>
+
+  <div class="files" id="designBar" style="display:none">
+    <span style="background:none;color:#555;padding:0;">Design files:</span>
+    <span>page.tsx</span>
+    <span>layout.tsx</span>
+    <span>globals.css</span>
+    <span>blog/page.tsx</span>
+    <span>blog/[slug]/page.tsx</span>
   </div>
 
   <div class="chat" id="chat">
@@ -44,8 +58,24 @@
       <input type="text" id="input" placeholder="What would you like to write about?" autofocus>
       <button id="send">Send</button>
     </div>
+    <div id="designHint" style="text-align:center;margin-top:10px;font-size:12px;color:#7e3af2;display:none">
+      🎨 Design mode — describe changes like "make the background dark purple" or "add a hero section"
+    </div>
   </div>
 
   <script src="/app.js"></script>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;backdrop-filter:blur(4px);">
+    <div style="position:absolute;inset:40px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:12px;">
+        <span style="font-size:14px;font-weight:600;color:#e0e0e0;">Preview</span>
+        <span id="previewTitle" style="font-size:13px;color:#666;"></span>
+        <button onclick="closePreview()" style="margin-left:auto;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 14px;color:#aaa;font-size:13px;">Close ✕</button>
+      </div>
+      <iframe id="previewFrame" src="" style="flex:1;border:none;background:#0f0f0f;"></iframe>
+    </div>
+  </div>
+
 </body>
 </html>

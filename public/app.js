@@ -18,7 +18,8 @@ const state = {
   autoPushEnabled: true,
   isRecording: false,
   mediaRecorder: null,
-  audioChunks: []
+  audioChunks: [],
+  mode: 'content' // 'content' | 'design'
 };
 
 // Audio Configuration
@@ -86,13 +87,106 @@ function hideTypingIndicator() {
 }
 
 /**
- * Handles the response from a file update
+ * Switches between content and design editing modes
+ * @param {'content'|'design'} mode - Target mode
+ */
+function setMode(mode) {
+  state.mode = mode;
+  state.history = []; // Clear history when switching modes
+
+  const isDesign = mode === 'design';
+
+  document.body.classList.toggle('design-mode', isDesign);
+
+  document.getElementById('tabContent').className = `mode-tab ${isDesign ? '' : 'active-content'}`;
+  document.getElementById('tabDesign').className = `mode-tab ${isDesign ? 'active-design' : ''}`;
+  document.getElementById('modeLabel').textContent = isDesign ? 'Design Mode' : 'Content Mode';
+  document.getElementById('modeLabel').style.background = isDesign
+    ? 'rgba(168,85,247,0.15)' : 'rgba(59,130,246,0.15)';
+  document.getElementById('modeLabel').style.color = isDesign ? '#c084fc' : '#60a5fa';
+  document.getElementById('filesBar').style.display = isDesign ? 'none' : 'flex';
+  document.getElementById('designBar').style.display = isDesign ? 'flex' : 'none';
+  document.getElementById('designHint').style.display = isDesign ? 'block' : 'none';
+  elements.input.placeholder = isDesign
+    ? 'Describe a design change, e.g. "make the background dark with a gradient"'
+    : 'What would you like to write about?';
+
+  const modeLabel = isDesign ? 'Design Mode' : 'Content Mode';
+  addMessage('system', `Switched to ${modeLabel}. History cleared.`, true);
+}
+
+/**
+ * Handles the response from a design file update
+ * @param {Object} data - Response data from the design-chat server
+ */
+function handleDesignUpdateResponse(data) {
+  if (data.reverted) {
+    const div = document.createElement('div');
+    div.className = 'message design-reverted';
+    div.textContent = `⚠️ Changes reverted: ${data.designError || 'Build check failed'}`;
+    elements.chat.appendChild(div);
+    scrollChatToBottom();
+    return;
+  }
+
+  if (data.filesUpdated && data.filesUpdated.length > 0) {
+    const div = document.createElement('div');
+    div.className = 'message design-updated';
+    div.textContent = `✓ Design updated: ${data.filesUpdated.join(', ')}`;
+    elements.chat.appendChild(div);
+    scrollChatToBottom();
+
+    if (data.pushed) {
+      addMessage('system', '✓ Pushed to GitHub! Site rebuilding...', true);
+    } else if (data.pushError) {
+      addMessage('system', `❌ Auto-push failed: ${data.pushError}`, true);
+    }
+  }
+}
+
+/**
+ * Opens the preview modal for a given content file
+ * @param {string} filename - File to preview
+ */
+function openPreview(filename) {
+  const modal = document.getElementById('previewModal');
+  const frame = document.getElementById('previewFrame');
+  const title = document.getElementById('previewTitle');
+  frame.src = `/preview?file=${encodeURIComponent(filename)}`;
+  title.textContent = filename;
+  modal.style.display = 'block';
+}
+
+/**
+ * Closes the preview modal
+ */
+function closePreview() {
+  const modal = document.getElementById('previewModal');
+  const frame = document.getElementById('previewFrame');
+  modal.style.display = 'none';
+  frame.src = '';
+}
+
+// Close preview on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePreview();
+});
+
+/**
+ * Handles the response from a content file update
  * @param {Object} data - Response data from the server
  */
 function handleFileUpdateResponse(data) {
   if (data.fileUpdated) {
-    addMessage('system', `✓ Updated: ${data.fileUpdated}`, true);
-    
+    // Show update notification with preview button
+    const div = document.createElement('div');
+    div.className = 'message system';
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;max-width:100%;';
+    div.innerHTML = `<span>✓ Updated: ${data.fileUpdated}</span>
+      <button onclick="openPreview('${data.fileUpdated}')" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:4px 12px;color:#60a5fa;font-size:12px;font-weight:500;cursor:pointer;transform:none;box-shadow:none;">👁 Preview</button>`;
+    elements.chat.appendChild(div);
+    scrollChatToBottom();
+
     if (data.pushed) {
       addMessage('system', '✓ Pushed to GitHub! Site updating...', true);
     } else if (data.pushError) {
@@ -102,7 +196,7 @@ function handleFileUpdateResponse(data) {
 }
 
 /**
- * Sends a message to the chat API
+ * Sends a message to the chat API (content or design mode)
  */
 async function sendMessage() {
   const text = elements.input.value.trim();
@@ -110,18 +204,25 @@ async function sendMessage() {
 
   elements.input.value = '';
   elements.sendBtn.disabled = true;
-  
+
   addMessage('user', text);
   state.history.push({ role: 'user', content: text });
   showTypingIndicator();
 
   try {
-    const response = await fetchChatResponse(state.history, state.autoPushEnabled);
-    hideTypingIndicator();
-    
-    handleFileUpdateResponse(response);
-    addMessage('assistant', response.response);
-    state.history.push({ role: 'assistant', content: response.response });
+    if (state.mode === 'design') {
+      const response = await fetchDesignResponse(state.history, state.autoPushEnabled);
+      hideTypingIndicator();
+      handleDesignUpdateResponse(response);
+      addMessage('assistant', response.response);
+      state.history.push({ role: 'assistant', content: response.response });
+    } else {
+      const response = await fetchChatResponse(state.history, state.autoPushEnabled);
+      hideTypingIndicator();
+      handleFileUpdateResponse(response);
+      addMessage('assistant', response.response);
+      state.history.push({ role: 'assistant', content: response.response });
+    }
   } catch (error) {
     hideTypingIndicator();
     addMessage('assistant', `Error: ${error.message}`);
@@ -129,6 +230,21 @@ async function sendMessage() {
 
   elements.sendBtn.disabled = false;
   elements.input.focus();
+}
+
+/**
+ * Fetches a response from the design chat API
+ * @param {Array} messages - Chat history
+ * @param {boolean} autoPush - Whether to auto-push changes
+ * @returns {Promise<Object>} API response
+ */
+async function fetchDesignResponse(messages, autoPush) {
+  const response = await fetch('/design-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, autoPush })
+  });
+  return response.json();
 }
 
 /**

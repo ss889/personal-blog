@@ -12,7 +12,7 @@ const APP_CONFIG = {
   width: 1200,
   height: 800,
   title: 'Blog Editor',
-  serverStartupTimeout: 3000,
+  serverStartupTimeout: 8000,
   serverPort: 3001
 };
 

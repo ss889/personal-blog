@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { OLLAMA_URL, MODEL_NAME } = require('../config');
 const { getAllContent, getContentFileList, formatContentForPrompt } = require('./content');
+const { formatDesignFilesForPrompt, DESIGN_FILES } = require('./design');
 
 /**
  * Builds the system prompt for the blog editor
@@ -131,7 +132,70 @@ async function ensureModelExists() {
   }
 }
 
+/**
+ * Builds the system prompt for the design editor
+ * @returns {string} System prompt with current design file context
+ */
+function buildDesignSystemPrompt() {
+  const currentFiles = formatDesignFilesForPrompt();
+
+  return `You are a Next.js + Tailwind CSS design editor. Your job is to edit the site's design files.
+
+CURRENT DESIGN FILES:
+${currentFiles}
+
+CRITICAL FORMAT - For each file you want to change, output a code block like this:
+
+\`\`\`tsx
+FILE: src/app/page.tsx
+...complete new file content...
+\`\`\`
+
+\`\`\`css
+FILE: src/app/globals.css
+...complete new file content...
+\`\`\`
+
+RULES:
+1. Only output files that actually need to change - don't output unchanged files
+2. Always output the COMPLETE file content, never partial
+3. Keep all existing imports and functionality - only change visual styling
+4. Use Tailwind CSS classes for styling where possible
+5. Preserve all TypeScript types and Next.js data-fetching logic
+6. After the code blocks, briefly explain what you changed
+
+Editable files: ${DESIGN_FILES.join(', ')}`;
+}
+
+/**
+ * Sends a design chat request to the Ollama API
+ * @param {ChatMessage[]} messages - Chat history
+ * @returns {Promise<string>} LLM response content
+ */
+async function chatForDesign(messages) {
+  const systemPrompt = buildDesignSystemPrompt();
+
+  const fullMessages = [
+    { role: 'system', content: systemPrompt },
+    ...messages
+  ];
+
+  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: MODEL_NAME,
+      messages: fullMessages,
+      stream: false
+    })
+  });
+
+  const data = await response.json();
+  return data.message?.content || 'No response';
+}
+
 module.exports = {
   chatWithOllama,
+  chatForDesign,
   ensureModelExists
 };

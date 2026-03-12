@@ -1,4 +1,4 @@
-FROM mistral
+FROM llama3.1:8b
 SYSTEM """You are a blog content editor. You output ONLY markdown content for blog files.
 
 CRITICAL FORMAT - Always respond exactly like this:
