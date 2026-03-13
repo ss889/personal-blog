@@ -67,6 +67,32 @@ export default function ProjectsPage() {
           </div>
         </div>
       </div>
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Projects</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
+          <div className="bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out">
+            <Link href="/projects/project-6" className="block p-4">
+              <h2 className="text-lg font-bold mb-2">Personal Finance App</h2>
+              <p className="text-gray-300">Built a personal finance app using React and Firebase.</p>
+              <p className="text-gray-400">Technologies: React, Firebase, JavaScript</p>
+            </Link>
+          </div>
+          <div className="bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out">
+            <Link href="/projects/project-7" className="block p-4">
+              <h2 className="text-lg font-bold mb-2">Social Media App</h2>
+              <p className="text-gray-300">Designed and developed a social media app using Next.js and MongoDB.</p>
+              <p className="text-gray-400">Technologies: Next.js, MongoDB, TypeScript</p>
+            </Link>
+          </div>
+          <div className="bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out">
+            <Link href="/projects/project-8" className="block p-4">
+              <h2 className="text-lg font-bold mb-2">E-learning Platform</h2>
+              <p className="text-gray-300">Built an e-learning platform using React and Node.js.</p>
+              <p className="text-gray-400">Technologies: React, Node.js, JavaScript</p>
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
