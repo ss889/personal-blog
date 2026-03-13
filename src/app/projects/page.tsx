@@ -48,6 +48,30 @@ export default function ProjectsPage() {
           </Link>
         </div>
       </div>
+      <style jsx>{`
+        .project-card {
+          padding: 2.5rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          transition: box-shadow 0.3s ease-in-out;
+        }
+        .project-card:hover {
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        .project-card h2 {
+          font-size: 1.5rem;
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+        }
+        .project-card p {
+          font-size: 1rem;
+          color: var(--text-muted);
+          margin-bottom: 1rem;
+        }
+        .project-card p:last-child {
+          margin-bottom: 0;
+        }
+      `}</style>
     </div>
   );
 }
