@@ -1,6 +1,6 @@
 ---
 title: Modern Developer Portfolio
-date: "2026-03-12"
+date: "2026-03-13"
 excerpt: Showcasing my projects, passions, and professional journey in web development and design!
 ---
 
@@ -78,6 +78,7 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 
 <div class="projects">
   <div class="project-grid">
+    <!-- Project cards will be generated dynamically -->
   </div>
 </div>
 
@@ -158,5 +159,24 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
   .post-date {
     color: #666;
     font-size: 14px;
+  }
+</style>
+
+## Footer
+
+<div class="footer">
+  <p>&copy; 2026 [Your Name]. All rights reserved.</p>
+</div>
+
+<style>
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px;
+    background-color: #2f343a;
+    color: white;
+    font-family: 'Inter', sans-serif;
   }
 </style>
