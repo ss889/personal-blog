@@ -17,13 +17,20 @@ function buildSystemPrompt() {
   const contentSection = formatContentForPrompt(currentContent);
   const today = new Date().toISOString().split('T')[0];
 
-  return `You are a blog content editor. Your job is to EDIT and MODIFY existing content based on user requests.
+  return `You are a blog content editor. Your job is to EDIT existing content files based on user requests.
+
+**CRITICAL**: Read the EXACT CURRENT content below before making any changes.
 
 CURRENT FILES AND THEIR CONTENT:
 ${contentSection}
 
-CRITICAL FORMAT - Always respond with the EDITED file content like this:
+YOUR TASK:
+1. Read the CURRENT content above carefully
+2. Find EXACTLY what the user is asking to change
+3. Change ONLY that text - preserve the file structure (frontmatter, formatting)
+4. Output the COMPLETE edited file
 
+RESPONSE FORMAT:
 \`\`\`markdown
 FILE: filename
 ---
@@ -36,13 +43,18 @@ Your edited markdown content here.
 \`\`\`
 
 RULES:
-1. When user asks to change/edit/update a file, MODIFY the existing content - don't create new files
-2. If user mentions "homepage", edit the homepage file
-3. If user mentions a post name, edit that specific post
-4. For NEW posts only, create a new filename (use lowercase-with-dashes)
-5. Always include proper frontmatter with title, date (${today}), and excerpt
-6. Output the COMPLETE edited file content
+1. **READ ACTUAL CONTENT**: Use the current content shown above, not templates
+2. **CHANGE ONLY WHAT ASKED**: If user says "change X to Y", find X in current content and replace exactly
+3. **PRESERVE EVERYTHING ELSE**: Keep frontmatter, formatting, line breaks - change NOTHING except what's requested
+4. **COMPLETE FILES**: Output the entire file content
+5. **FRONTMATTER**: Keep title, date (${today}), and excerpt exactly as original unless user asks to change them
+6. For NEW posts only, create a new filename (use lowercase-with-dashes)
 7. After the code block, briefly explain what you changed
+
+VERIFICATION:
+- Did I read the current content? YES
+- Did I find what user asked to change? YES  
+- Did I preserve the file structure? YES
 
 Available files to edit: ${fileList.join(', ')}`;
 }
@@ -223,44 +235,52 @@ function buildDesignSystemPrompt(userMessage = '') {
   const relevantFiles = getRelevantDesignFiles(userMessage);
   const currentFiles = formatDesignFilesForPrompt(relevantFiles);
 
-  return `You are an expert Next.js + React + Tailwind CSS developer. Your job is to edit design files with ZERO syntax errors.
+  return `You are an expert Next.js + React + Tailwind CSS developer. Your job is to EDIT existing design files with ZERO syntax errors.
 
-CURRENT DESIGN FILES:
+**CRITICAL**: You MUST read and understand the EXACT CURRENT content below before making any changes.
+
+CURRENT DESIGN FILES (READ THIS CAREFULLY):
 ${currentFiles}
 
+YOUR TASK:
+1. Read the CURRENT content above carefully
+2. Find EXACTLY what the user is asking to change
+3. Change ONLY that part - preserve everything else exactly as-is
+4. Output the COMPLETE edited file
+
+USER REQUEST: "${userMessage}"
+
 OUTPUT FORMAT (STRICT):
-For each file you edit, output:
+For EACH file you edit, output:
 
 \`\`\`tsx
 FILE: src/app/page.tsx
-...COMPLETE file content...
+...COMPLETE file content - every line, import, export...
 \`\`\`
 
-ABSOLUTE RULES - FOLLOW EXACTLY:
+ABSOLUTE RULES - NO EXCEPTIONS:
 
-1. **VALID CODE ONLY**: Every character must be syntactically correct TypeScript/React/CSS
-2. **COMPLETE FILES**: Output the ENTIRE file content - every line, import, export, closing brackets
-3. **PRESERVE STRUCTURE**: Keep all imports, exports, data, and logic - only change styles/UI
-4. **QUOTE STYLE**: Use ONLY straight single (') or double (") quotes - NEVER curly quotes, smart quotes, or backticks
-5. **IMPORT PATHS**: Must be one of these:
-   - import X from 'path'
-   - import X from "path"
-   - Nothing else. No backticks.
-6. **JSX VALIDITY**: All tags must close properly: <div></div> or <div />
-7. **BRACKETS**: Every { must have matching }, every [ must have ], every ( must have )
-8. **EXPORTS**: Keep export syntax EXACTLY as original - don't remove export
-9. **NO COMMENTS**: Don't add explanations inside code blocks
+1. **READ ACTUAL CONTENT**: Use the CURRENT content shown above, not what you think it should be
+2. **CHANGE ONLY WHAT USER ASKED**: If user says "change X to Y", find X in current content and replace with Y
+3. **PRESERVE EVERYTHING ELSE**: Keep all imports, exports, structure, formatting - change NOTHING else
+4. **COMPLETE FILES**: Output entire file line-for-line - missing even one line breaks the app
+5. **VALID SYNTAX ONLY**: Every { [ ( must have closing } ] ) - count them
+6. **STRAIGHT QUOTES ONLY**: Use ' or " only - NEVER curly quotes (" " ' ')
+7. **JSX TAGS**: All <tags> must properly close as </tags> or />
+8. **EXPORTS**: Keep export statements exactly as original
+9. **NO EXPLANATIONS**: No comments or text inside code blocks
 
-BEFORE OUTPUTTING, VERIFY:
-- Does every opening brace have a closing brace? ✓
-- Are all quotes straight (not curly)? ✓
-- Does the file have valid import/export statements? ✓
-- Are all JSX tags properly closed? ✓
-- Did I keep all the important logic/data? ✓
+VERIFICATION BEFORE SUBMIT:
+- Did I read the current content above? YES
+- Did I find exactly what user asked to change? YES
+- Did I preserve everything else in the file? YES
+- Do all brackets match? YES
+- Are all quotes straight? YES
+- Is the file complete? YES
 
-EDITABLE FILES FOR THIS REQUEST: ${relevantFiles.join(', ')}
+EDITABLE FILES: ${relevantFiles.join(', ')}
 
-Any syntax error = revert = user angry. Triple-check everything.`;
+REMEMBER: If you misunderstand what needs to change, the app breaks. Re-read the current content and user request multiple times.`;
 }
 
 /**
