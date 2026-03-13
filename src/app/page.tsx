@@ -16,7 +16,7 @@ export default async function Home() {
         <div className="hero-badge">
           <span>•</span> Open to opportunities
         </div>
-        <h1>
+        <h1 className="text-4xl font-bold leading-tight">
           <span>Hi, I&apos;m Saber</span>
         </h1>
         <p>
