@@ -391,11 +391,13 @@ async function processRecording(audioBlob) {
       return;
     }
 
-    addMessage('system', `✓ Transcribed: "${transcription.transcription}"`, true);
+    const text = transcription.transcription.trim();
+    addMessage('system', `✓ Transcribed: "${text}"`, true);
     
-    // Send transcription to LLM for processing
-    const prompt = `Create a blog post from this spoken content: ${transcription.transcription}`;
-    await sendTranscriptionToChat(prompt);
+    // Route transcription through normal message handler
+    // This respects the current mode (design/content)
+    elements.input.value = text;
+    await sendMessage();
   } catch (error) {
     hideTypingIndicator();
     addMessage('system', `❌ Error: ${error.message}`, true);
@@ -416,29 +418,6 @@ async function transcribeAudio(audioBlob) {
     body: formData
   });
   return response.json();
-}
-
-/**
- * Sends a transcription to the chat API
- * @param {string} prompt - The prompt containing the transcription
- */
-async function sendTranscriptionToChat(prompt) {
-  addMessage('user', prompt);
-  state.history.push({ role: 'user', content: prompt });
-
-  showTypingIndicator();
-  
-  try {
-    const response = await fetchChatResponse(state.history, state.autoPushEnabled);
-    hideTypingIndicator();
-
-    handleFileUpdateResponse(response);
-    addMessage('assistant', response.response);
-    state.history.push({ role: 'assistant', content: response.response });
-  } catch (error) {
-    hideTypingIndicator();
-    addMessage('system', `❌ Error: ${error.message}`, true);
-  }
 }
 
 /**

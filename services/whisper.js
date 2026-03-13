@@ -77,8 +77,9 @@ function convertToWav(inputPath, outputPath) {
 
 /**
  * Parses WAV file and extracts audio data as Float32Array
+ * Includes auto-gain adjustment for quiet audio and clip suppression
  * @param {string} audioPath - Path to audio file (WAV preferred)
- * @returns {Float32Array} Audio samples normalized to [-1, 1]
+ * @returns {Float32Array} Audio samples normalized to [-1, 1] with gain adjustment
  */
 function parseWavToFloat32(audioPath) {
   const wavBuffer = fs.readFileSync(audioPath);
@@ -88,11 +89,31 @@ function parseWavToFloat32(audioPath) {
   const dataStart = wavBuffer.indexOf(Buffer.from('data')) + 8;
   const pcmData = wavBuffer.slice(dataStart);
   
-  // Convert 16-bit PCM to Float32Array
+  // Convert 16-bit PCM to Float32Array with normalization
   const floatData = new Float32Array(pcmData.length / 2);
   for (let i = 0; i < floatData.length; i++) {
     const sample = pcmData.readInt16LE(i * 2);
     floatData[i] = sample / AUDIO_CONSTANTS.PCM_NORMALIZATION_FACTOR;
+  }
+  
+  // Auto-gain adjustment: detect peak level and normalize if too quiet
+  // Whisper works better with consistent audio levels
+  let maxAbsValue = 0;
+  for (let i = 0; i < floatData.length; i++) {
+    const absValue = Math.abs(floatData[i]);
+    if (absValue > maxAbsValue) maxAbsValue = absValue;
+  }
+  
+  console.log(`Audio level: ${(maxAbsValue * 100).toFixed(1)}%`);
+  
+  // If audio is too quiet (below 30% of max range), apply gentle gain
+  if (maxAbsValue > 0 && maxAbsValue < 0.3) {
+    const gainFactor = 0.3 / maxAbsValue;
+    console.log(`Applying gain adjustment: ${gainFactor.toFixed(2)}x`);
+    for (let i = 0; i < floatData.length; i++) {
+      // Clip if it goes over 1.0 to prevent distortion
+      floatData[i] = Math.max(-1.0, Math.min(1.0, floatData[i] * gainFactor));
+    }
   }
   
   return floatData;
