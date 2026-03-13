@@ -98,7 +98,7 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 
   .project-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 32px;
   }
 
@@ -107,9 +107,24 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
     border-radius: 16px;
     padding: 24px;
     transition: transform 0.2s ease-in-out;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
 
   .project-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .project-dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    border-radius: 16px;
+    background-color: #3b3e5c;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .project-dashboard:hover {
     transform: translateY(-8px);
   }
 
@@ -121,6 +136,21 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 
   .project-date {
     color: #666;
+    font-size: 14px;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .project-tag {
+    background-color: #333;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 16px;
     font-size: 14px;
   }
 </style>
