@@ -46,12 +46,21 @@ export default function ProjectsPage() {
       <h1 className="section-title">Projects</h1>
       <p className="section-subtitle">{projects.length} projects completed</p>
 
-      <div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
-          <Link key={project.slug} href={`/projects/${project.slug}`} className="blog-list-item">
-            <h2>{project.title}</h2>
-            <p>{project.excerpt}</p>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Technologies: {project.technologies}</p>
+          <Link
+            key={project.slug}
+            href={`/projects/${project.slug}`}
+            className="group relative block overflow-hidden rounded-lg border border-gray-200 shadow-md hover:border-gray-500 hover:shadow-lg"
+          >
+            <div className="absolute top-0 left-0 w-full h-full transition duration-300 ease-in-out hover:bg-gray-100">
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-gray-500 opacity-50" />
+            </div>
+            <div className="p-4">
+              <h2 className="text-lg font-bold">{project.title}</h2>
+              <p className="text-gray-600">{project.excerpt}</p>
+              <p className="text-gray-500 text-sm">Technologies: {project.technologies}</p>
+            </div>
           </Link>
         ))}
       </div>
