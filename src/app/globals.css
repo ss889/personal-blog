@@ -53,7 +53,7 @@ a:hover {
 }
 
 /* Navigation */
-nav {
+nav, .nav {
   background: #0f0f0f;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding: 1rem 2rem;
@@ -66,7 +66,7 @@ nav {
   align-items: center;
 }
 
-nav a {
+nav a, .nav a, .nav-link {
   margin: 0 1.5rem;
   font-weight: 500;
   color: #a1a1a1;
@@ -74,8 +74,37 @@ nav a {
   font-size: 0.95rem;
 }
 
-nav a:hover {
+nav a:hover, .nav a:hover, .nav-link:hover {
   color: #e5e7eb;
+}
+
+.nav-brand {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e5e7eb !important;
+  margin-right: auto;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  margin: 0;
+}
+
+.nav-link {
+  margin: 0 1rem !important;
+  display: inline-block;
+}
+
+.nav-link.active {
+  color: #5eead4 !important;
+  font-weight: 600;
 }
 
 /* Hero Section */
@@ -452,7 +481,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* Footer */
-footer {
+footer, .footer {
   background: rgba(0, 0, 0, 0.3);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   padding: 3rem 2rem;
@@ -460,7 +489,7 @@ footer {
   margin-top: 4rem;
 }
 
-footer p {
+footer p, .footer p {
   color: #9ca3af;
   margin-bottom: 0.5rem;
 }
