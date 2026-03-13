@@ -29,10 +29,10 @@ export default function RootLayout({
         <nav className="nav">
           <Link href="/" className="nav-brand">Saber&apos;s Blog</Link>
           <ul className="nav-links">
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/blog">Articles</Link></li>
-            <li><Link href="/">Projects</Link></li>
-            <li><Link href="/">Contact</Link></li>
+            <li><Link href="/" className="nav-link">Home</Link></li>
+            <li><Link href="/blog" className="nav-link">Articles</Link></li>
+            <li><Link href="/projects" className="nav-link active">Projects</Link></li>
+            <li><Link href="/" className="nav-link">Contact</Link></li>
             <li>
               <a
                 href="https://github.com/ss889"
