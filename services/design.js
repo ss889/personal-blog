@@ -276,10 +276,12 @@ function parseDesignFileResponse(response, hintFiles = []) {
   }
 
   const plainBlockRegex = /(?:^|\n)FILE:\s*(\S+)\s*\n([\s\S]*?)(?=\nFILE:\s*\S+\s*\n|$)/gi;
-  while ((match = plainBlockRegex.exec(response)) !== null) {
-    const relativePath = match[1].trim();
-    const content = match[2].trim();
-    addChange(relativePath, content);
+  if (changes.length === 0) {
+    while ((match = plainBlockRegex.exec(response)) !== null) {
+      const relativePath = match[1].trim();
+      const content = match[2].trim();
+      addChange(relativePath, content);
+    }
   }
 
   // Fallback: code blocks without FILE: prefix — look for a design file path
