@@ -203,6 +203,10 @@ function getRelevantDesignFiles(userMessage) {
     selected.add('src/app/blog/[slug]/page.tsx');
   }
 
+  if (text.includes('project')) {
+    selected.add('src/app/projects/page.tsx');
+  }
+
   if (selected.size === 1) {
     return [...selected];
   }
@@ -235,23 +239,27 @@ Rules:
 2) Complete file content for each changed file
 3) Preserve imports/types/data logic
 4) No explanations inside code blocks
-5) Editable files for this request: ${relevantFiles.join(', ')}`;
+5) Editable files for this request: ${relevantFiles.join(', ')}
+6) CRITICAL: Use only straight single quotes (') or double quotes (") — NEVER curly/smart quotes or backticks in import paths or module declarations
+7) All import paths must use straight quotes: import X from 'path' or import X from "path"`;
 }
 
 /**
  * Sends a design chat request (Groq-backed)
  * @param {ChatMessage[]} messages - Chat history
- * @returns {Promise<string>} LLM response content
+ * @returns {Promise<{content: string, relevantFiles: string[]}>}
  */
 async function chatForDesign(messages) {
   const latestUserMessage = getLatestUserMessage(messages);
+  const relevantFiles = getRelevantDesignFiles(latestUserMessage);
   const systemPrompt = buildDesignSystemPrompt(latestUserMessage);
   const fullMessages = [{ role: 'system', content: systemPrompt }, ...messages];
 
   try {
-    return await callGroq(fullMessages, { temperature: 0.2, maxTokens: 2000, timeoutMs: 240000 });
+    const content = await callGroq(fullMessages, { temperature: 0.2, maxTokens: 2000, timeoutMs: 240000 });
+    return { content, relevantFiles };
   } catch (error) {
-    return `Groq request failed: ${error.message}`;
+    return { content: `Groq request failed: ${error.message}`, relevantFiles };
   }
 }
 

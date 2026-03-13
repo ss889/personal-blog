@@ -296,12 +296,12 @@ async function handleTranscribeRequest(req, res) {
 async function handleDesignChatRequest(req, res) {
   try {
     const { messages, autoPush } = await parseJsonBody(req);
-    const rawResponse = await chatForDesign(messages);
+    const { content: rawResponse, relevantFiles } = await chatForDesign(messages);
     const response = (typeof rawResponse === 'string' && rawResponse) ? rawResponse : '';
 
     if (!response) {
       sendJson(res, 200, {
-        response: 'Ollama did not return a response. Make sure Ollama is running and the model is loaded.',
+        response: 'Could not get a response from the AI. Check your GROQ_API_KEY and try again.',
         filesUpdated: [],
         reverted: false,
         designError: 'Empty response from Ollama',
@@ -312,7 +312,7 @@ async function handleDesignChatRequest(req, res) {
     }
 
     // Parse file changes from LLM response
-    const fileChanges = parseDesignFileResponse(response);
+    const fileChanges = parseDesignFileResponse(response, relevantFiles);
     let designResult = { success: false, filesUpdated: [], reverted: false, error: null };
 
     if (fileChanges.length > 0) {

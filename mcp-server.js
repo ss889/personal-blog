@@ -430,11 +430,12 @@ async function handleApplyStyleProfile({ profileName, goal, targetFiles = [], au
     targetFiles: normalizedTargets
   });
 
-  const llmResponse = await chatForDesign([
+  const { content: llmContent, relevantFiles: llmHintFiles } = await chatForDesign([
     { role: 'user', content: requestText }
   ]);
+  const llmResponse = llmContent || '';
 
-  const fileChanges = parseDesignFileResponse(llmResponse || '');
+  const fileChanges = parseDesignFileResponse(llmResponse, llmHintFiles);
   if (fileChanges.length === 0) {
     return toolResult(
       `No valid code changes produced by model.\nModel response:\n${llmResponse || '(empty)'}`,

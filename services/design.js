@@ -19,7 +19,8 @@ const DESIGN_FILES = [
   'src/app/layout.tsx',
   'src/app/page.tsx',
   'src/app/blog/page.tsx',
-  'src/app/blog/[slug]/page.tsx'
+  'src/app/blog/[slug]/page.tsx',
+  'src/app/projects/page.tsx'
 ];
 
 /**
@@ -208,7 +209,35 @@ function looksLikeCode(content) {
   return true;
 }
 
-function parseDesignFileResponse(response) {
+/**
+ * Sanitizes LLM-generated code to fix common quote/encoding issues
+ * that cause TypeScript parse errors before we attempt to apply.
+ * @param {string} content
+ * @returns {string}
+ */
+function sanitizeGeneratedCode(content) {
+  // Replace smart/curly quotes with straight quotes
+  let out = content
+    .replace(/\u2018|\u2019/g, "'")   // left/right single curly quotes → '
+    .replace(/\u201C|\u201D/g, '"')   // left/right double curly quotes → "
+    .replace(/\u2032/g, "'")          // prime → '
+    .replace(/\u201A/g, "'")          // single low-9 quotation → '
+    .replace(/\u201E/g, '"');         // double low-9 quotation → "
+
+  // Fix module/declare declarations that use backticks instead of quotes
+  // e.g. declare module `foo` { ... } → declare module 'foo' { ... }
+  out = out.replace(/(declare\s+module\s+)`([^`]+)`/g, "$1'$2'");
+
+  // Fix import paths that ended up with backticks (rare but happens)
+  // e.g. import foo from `bar` → import foo from 'bar'
+  out = out.replace(/(from\s+)`([^`]+)`/g, "$1'$2'");
+  out = out.replace(/(import\s+)`([^`]+)`/g, "$1'$2'");
+  out = out.replace(/(require\s*\()`([^`]+)`/g, "$1'$2'");
+
+  return out;
+}
+
+function parseDesignFileResponse(response, hintFiles = []) {
   const changes = [];
   const seen = new Set();
 
@@ -218,7 +247,9 @@ function parseDesignFileResponse(response) {
       return;
     }
 
-    if (!looksLikeCode(content)) {
+    const sanitized = sanitizeGeneratedCode(content);
+
+    if (!looksLikeCode(sanitized)) {
       console.warn(`Skipping ${relativePath}: content does not appear to be code`);
       return;
     }
@@ -226,13 +257,13 @@ function parseDesignFileResponse(response) {
     if (seen.has(relativePath)) {
       const idx = changes.findIndex((c) => c.relativePath === relativePath);
       if (idx >= 0) {
-        changes[idx] = { relativePath, content };
+        changes[idx] = { relativePath, content: sanitized };
       }
       return;
     }
 
     seen.add(relativePath);
-    changes.push({ relativePath, content });
+    changes.push({ relativePath, content: sanitized });
   }
 
   const codeBlockRegex = /```(?:tsx?|css|javascript)?\s*\n?\s*FILE:\s*(\S+)\s*\n([\s\S]*?)```/gi;
@@ -249,6 +280,46 @@ function parseDesignFileResponse(response) {
     const relativePath = match[1].trim();
     const content = match[2].trim();
     addChange(relativePath, content);
+  }
+
+  // Fallback: code blocks without FILE: prefix — look for a design file path
+  // mentioned in the text preceding the block, in the response, or use the hint list
+  if (changes.length === 0) {
+    const bareBlockRegex = /```(?:tsx?|css|javascript)?\s*\n([\s\S]*?)```/gi;
+    while ((match = bareBlockRegex.exec(response)) !== null) {
+      const content = match[1].trim();
+      const blockStart = match.index;
+      const before = response.slice(Math.max(0, blockStart - 350), blockStart);
+
+      let targetPath = null;
+
+      // 1. Look for a known path in the surrounding text
+      for (const filePath of DESIGN_FILES) {
+        if (before.includes(filePath) || response.slice(blockStart, blockStart + 30).includes(filePath)) {
+          targetPath = filePath;
+          break;
+        }
+      }
+
+      // 2. Look anywhere in the full response
+      if (!targetPath) {
+        for (const filePath of DESIGN_FILES) {
+          if (response.includes(filePath)) {
+            targetPath = filePath;
+            break;
+          }
+        }
+      }
+
+      // 3. Use hintFiles from the prompt context (single hint = unambiguous target)
+      if (!targetPath && hintFiles.length === 1 && DESIGN_FILES.includes(hintFiles[0])) {
+        targetPath = hintFiles[0];
+      }
+
+      if (targetPath) {
+        addChange(targetPath, content);
+      }
+    }
   }
 
   return changes;
