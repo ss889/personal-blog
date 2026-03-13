@@ -7,7 +7,7 @@ const SKILLS = [
 ];
 
 export default async function Home() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
 
   return (
     <>
@@ -20,8 +20,7 @@ export default async function Home() {
           <span>Hi, I&apos;m Saber</span>
         </h1>
         <p>
-          Software developer who builds useful things. I write about web
-          development, software engineering, and personal projects.
+          AI engineer who transforms complex problems into intelligent solutions. I design and deploy machine learning models that drive real-world impact.
         </p>
         <div className="hero-buttons">
           <Link href="/blog" className="btn-primary">
