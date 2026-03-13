@@ -78,7 +78,6 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 
 <div class="projects">
   <div class="project-grid">
-    <!-- Project cards will be generated dynamically -->
   </div>
 </div>
 
