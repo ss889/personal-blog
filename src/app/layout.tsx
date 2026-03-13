@@ -1,6 +1,9 @@
+'use client';
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,25 +16,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "IronGiant — Developer Portfolio",
-  description: "Software developer portfolio and blog",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/" && pathname === "/") return true;
+    if (href !== "/" && pathname.startsWith(href)) return true;
+    return false;
+  };
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <nav className="nav">
           <Link href="/" className="nav-brand">Sab's Blog</Link>
           <ul className="nav-links">
-            <li><Link href="/" className="nav-link">Home</Link></li>
-            <li><Link href="/blog" className="nav-link">Articles</Link></li>
-            <li><Link href="/projects" className="nav-link active">Projects</Link></li>
+            <li><Link href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>Home</Link></li>
+            <li><Link href="/blog" className={`nav-link ${isActive("/blog") ? "active" : ""}`}>Articles</Link></li>
+            <li><Link href="/projects" className={`nav-link ${isActive("/projects") ? "active" : ""}`}>Projects</Link></li>
             <li><Link href="/" className="nav-link">Contact</Link></li>
             <li>
               <a
