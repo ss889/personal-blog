@@ -1,26 +1,11 @@
 /**
- * Ollama LLM Service Module
- * Handles communication with the Ollama API for blog content generation
+ * LLM Service Module (Groq-backed)
+ * Keeps original exported function names for compatibility with existing server code.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { OLLAMA_URL, MODEL_NAME } = require('../config');
+const { GROQ_URL, GROQ_MODEL, GROQ_API_KEY } = require('../config');
 const { getAllContent, getContentFileList, formatContentForPrompt } = require('./content');
 const { formatDesignFilesForPrompt, DESIGN_FILES } = require('./design');
-
-let cachedDesignModel = null;
-let cachedDesignModelAt = 0;
-
-async function getAvailableModels() {
-  try {
-    const response = await fetch(`${OLLAMA_URL}/api/tags`);
-    const data = await response.json();
-    return (data.models || []).map((m) => m.name);
-  } catch {
-    return [];
-  }
-}
 
 /**
  * Builds the system prompt for the blog editor
@@ -69,80 +54,81 @@ Available files to edit: ${fileList.join(', ')}`;
  * @property {string} content - Message content
  */
 
+function requireGroqKey() {
+  if (!GROQ_API_KEY) {
+    throw new Error('Missing GROQ_API_KEY. Add it to ../.env and restart the app.');
+  }
+}
+
 /**
- * Sends a chat request to the Ollama API
+ * Calls Groq chat completion endpoint
+ * @param {ChatMessage[]} messages
+ * @param {{ temperature?: number, maxTokens?: number, timeoutMs?: number }} options
+ * @returns {Promise<string>}
+ */
+async function callGroq(messages, options = {}) {
+  requireGroqKey();
+
+  const {
+    temperature = 0.3,
+    maxTokens = 1800,
+    timeoutMs = 240000
+  } = options;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages,
+        temperature,
+        max_tokens: maxTokens
+      }),
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      throw new Error(`Groq error (${response.status}): ${errText}`);
+    }
+
+    const data = await response.json();
+    return data?.choices?.[0]?.message?.content || 'No response';
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return 'Request timed out while waiting for Groq. Try a more focused request or run again.';
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Sends a chat request (Groq-backed, legacy function name retained)
  * @param {ChatMessage[]} messages - Chat history
  * @returns {Promise<string>} LLM response content
  */
 async function chatWithOllama(messages) {
   const systemPrompt = buildSystemPrompt();
-
-  const fullMessages = [
-    { role: 'system', content: systemPrompt },
-    ...messages
-  ];
-
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      messages: fullMessages,
-      stream: false
-    })
-  });
-
-  const data = await response.json();
-  return data.message?.content || 'No response';
+  const fullMessages = [{ role: 'system', content: systemPrompt }, ...messages];
+  return callGroq(fullMessages, { temperature: 0.3, maxTokens: 1800, timeoutMs: 240000 });
 }
 
 /**
- * Checks if the blog-editor model exists in Ollama
- * @returns {Promise<boolean>} True if model exists
- */
-async function modelExists() {
-  try {
-    const response = await fetch(`${OLLAMA_URL}/api/tags`);
-    const data = await response.json();
-    return data.models?.some(m => m.name.startsWith(MODEL_NAME)) || false;
-  } catch (error) {
-    return false;
-  }
-}
-
-/**
- * Creates the blog-editor model in Ollama
- * @returns {Promise<void>}
- */
-async function createModel() {
-  const modelfilePath = path.join(__dirname, '..', 'Modelfile');
-  const modelfile = fs.readFileSync(modelfilePath, 'utf8');
-  
-  await fetch(`${OLLAMA_URL}/api/create`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: MODEL_NAME, modelfile })
-  });
-  
-  console.log('✓ Model created');
-}
-
-/**
- * Ensures the blog-editor model exists, creating it if necessary
- * @throws {Error} If Ollama is not reachable
+ * Ensures LLM backend is configured (legacy function name retained)
+ * @throws {Error} If Groq API key is missing
  */
 async function ensureModelExists() {
-  try {
-    const exists = await modelExists();
-    
-    if (!exists) {
-      console.log('Creating blog-editor model...');
-      await createModel();
-    }
-  } catch (error) {
-    console.error('Could not connect to Ollama:', error.message);
-    throw new Error('Ollama connection failed');
-  }
+  requireGroqKey();
+  console.log(`✓ Groq model ready (${GROQ_MODEL})`);
 }
 
 /**
@@ -218,73 +204,15 @@ function getRelevantDesignFiles(userMessage) {
   }
 
   if (selected.size === 1) {
-    // keep single-file requests fast by not forcing extra files
     return [...selected];
   }
 
   if (selected.size === 0) {
-    // safe default for generic design asks
     selected.add('src/app/page.tsx');
     selected.add('src/app/globals.css');
   }
 
   return DESIGN_FILES.filter((f) => selected.has(f));
-}
-
-async function getFastDesignModel() {
-  const now = Date.now();
-  if (cachedDesignModel && (now - cachedDesignModelAt) < 10 * 60 * 1000) {
-    return cachedDesignModel;
-  }
-
-  const available = await getAvailableModels();
-
-  const preferredOrder = [
-    'llama3.2:3b',
-    'mistral:latest',
-    'qwen2.5:3b',
-    'phi3:mini',
-    'gemma2:2b',
-    MODEL_NAME,
-    'llama3.1:8b'
-  ];
-
-  const chosen = preferredOrder.find((name) => available.some((a) => a === name || a.startsWith(name))) || MODEL_NAME;
-  cachedDesignModel = chosen;
-  cachedDesignModelAt = now;
-  return chosen;
-}
-
-function getDesignFallbackModels(primaryModel, availableModels) {
-  const ordered = [
-    primaryModel,
-    'llama3.2:3b',
-    'mistral:latest',
-    MODEL_NAME,
-    'llama3.1:8b'
-  ];
-
-  const seen = new Set();
-  const result = [];
-
-  for (const model of ordered) {
-    if (!model || seen.has(model)) continue;
-    if (availableModels.length > 0 && !availableModels.some((a) => a === model || a.startsWith(model))) {
-      continue;
-    }
-    seen.add(model);
-    result.push(model);
-  }
-
-  if (result.length === 0) {
-    result.push(primaryModel || MODEL_NAME);
-  }
-  return result;
-}
-
-function isRunnerCrashText(text) {
-  const t = (text || '').toLowerCase();
-  return t.includes('runner process has terminated') || t.includes('exit status 2') || t.includes('llama runner');
 }
 
 function buildDesignSystemPrompt(userMessage = '') {
@@ -311,76 +239,20 @@ Rules:
 }
 
 /**
- * Sends a design chat request to the Ollama API
+ * Sends a design chat request (Groq-backed)
  * @param {ChatMessage[]} messages - Chat history
  * @returns {Promise<string>} LLM response content
  */
 async function chatForDesign(messages) {
   const latestUserMessage = getLatestUserMessage(messages);
   const systemPrompt = buildDesignSystemPrompt(latestUserMessage);
-  const designModel = await getFastDesignModel();
-  const availableModels = await getAvailableModels();
-  const candidateModels = getDesignFallbackModels(designModel, availableModels);
+  const fullMessages = [{ role: 'system', content: systemPrompt }, ...messages];
 
-  const fullMessages = [
-    { role: 'system', content: systemPrompt },
-    ...messages
-  ];
-
-  for (const model of candidateModels) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 240000);
-
-    let response;
-    try {
-      response = await fetch(`${OLLAMA_URL}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          messages: fullMessages,
-          stream: false,
-          options: {
-            temperature: 0.2,
-            num_predict: 1800
-          }
-        }),
-        signal: controller.signal
-      });
-    } catch (error) {
-      clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        return 'Request timed out while waiting for Ollama (4 min). Try a more focused request or run again.';
-      }
-      continue;
-    }
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errText = await response.text().catch(() => '');
-      console.error('Ollama error:', response.status, errText, 'model=', model);
-
-      if (isRunnerCrashText(errText)) {
-        if (cachedDesignModel === model) {
-          cachedDesignModel = null;
-          cachedDesignModelAt = 0;
-        }
-        continue;
-      }
-
-      return `Ollama returned an error (${response.status}): ${errText}`;
-    }
-
-    const data = await response.json().catch(() => ({}));
-    const content = data.message?.content || data.response || '';
-    if (content) {
-      cachedDesignModel = model;
-      cachedDesignModelAt = Date.now();
-      return content;
-    }
+  try {
+    return await callGroq(fullMessages, { temperature: 0.2, maxTokens: 2000, timeoutMs: 240000 });
+  } catch (error) {
+    return `Groq request failed: ${error.message}`;
   }
-
-  return 'Ollama runner crashed for available models. Try restarting Ollama (`ollama serve`) and retry.';
 }
 
 module.exports = {
