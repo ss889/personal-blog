@@ -6,7 +6,7 @@ excerpt: My first blog post - an introduction to this new adventure.
 
 # Hello World
 
-Welcome to my very first blog post! I'm excited to start sharing my journey with you.
+Welcome to Sab's world! I'm excited to start sharing my journey with you.
 
 ## Why I Started This Blog
 
