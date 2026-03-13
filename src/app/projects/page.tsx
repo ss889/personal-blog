@@ -46,21 +46,37 @@ export default function ProjectsPage() {
       <h1 className="section-title">Projects</h1>
       <p className="section-subtitle">{projects.length} projects completed</p>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div>
         {projects.map((project) => (
-          <Link
-            key={project.slug}
-            href={`/projects/${project.slug}`}
-            className="group relative block overflow-hidden rounded-lg border border-gray-200 shadow-md hover:border-gray-500 hover:shadow-lg"
+          <Link 
+            key={project.slug} 
+            href={`/projects/${project.slug}`} 
+            className="blog-list-item"
+            style={{
+              display: 'block',
+              padding: '2rem',
+              marginBottom: '1.5rem',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(94, 234, 212, 0.2)',
+              borderRadius: '0.5rem',
+              transition: 'all 0.2s ease',
+              color: '#e5e7eb',
+              textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(94, 234, 212, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(94, 234, 212, 0.4)';
+              e.currentTarget.style.transform = 'translateX(4px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+              e.currentTarget.style.borderColor = 'rgba(94, 234, 212, 0.2)';
+              e.currentTarget.style.transform = 'translateX(0)';
+            }}
           >
-            <div className="absolute top-0 left-0 w-full h-full transition duration-300 ease-in-out hover:bg-gray-100">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-gray-500 opacity-50" />
-            </div>
-            <div className="p-4">
-              <h2 className="text-lg font-bold">{project.title}</h2>
-              <p className="text-gray-600">{project.excerpt}</p>
-              <p className="text-gray-500 text-sm">Technologies: {project.technologies}</p>
-            </div>
+            <h2 style={{ fontSize: '1.5rem', margin: '0.75rem 0', color: '#5eead4', fontWeight: 700 }}>{project.title}</h2>
+            <p style={{ color: '#9ca3af', margin: '0.75rem 0 0 0', fontSize: '0.95rem' }}>{project.excerpt}</p>
+            <p style={{ fontSize: '0.9rem', color: '#9ca3af', margin: '0.75rem 0 0 0' }}>Technologies: {project.technologies}</p>
           </Link>
         ))}
       </div>
