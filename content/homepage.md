@@ -74,6 +74,50 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
   }
 </style>
 
+## Projects
+
+<div class="projects">
+  <div class="project-grid">
+    <!-- Project cards will be generated dynamically -->
+  </div>
+</div>
+
+<style>
+  .projects {
+    display: flex;
+    justify-content: center;
+    padding: 64px;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .project-card {
+    background-color: #3b3e5c;
+    border-radius: 16px;
+    padding: 24px;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .project-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .project-title {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .project-date {
+    color: #666;
+    font-size: 14px;
+  }
+</style>
+
 ## Recent Posts
 
 <div class="posts">
