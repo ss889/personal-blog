@@ -58,12 +58,3 @@ export default function ProjectsPage() {
     </main>
   );
 }
-          }
-          .project-card p:last-child {
-            margin-bottom: 0;
-          }
-        `}
-      </style>
-    </div>
-  );
-}
