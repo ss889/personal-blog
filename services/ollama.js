@@ -9,6 +9,19 @@ const { OLLAMA_URL, MODEL_NAME } = require('../config');
 const { getAllContent, getContentFileList, formatContentForPrompt } = require('./content');
 const { formatDesignFilesForPrompt, DESIGN_FILES } = require('./design');
 
+let cachedDesignModel = null;
+let cachedDesignModelAt = 0;
+
+async function getAvailableModels() {
+  try {
+    const response = await fetch(`${OLLAMA_URL}/api/tags`);
+    const data = await response.json();
+    return (data.models || []).map((m) => m.name);
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Builds the system prompt for the blog editor
  * @returns {string} System prompt with current content context
@@ -136,35 +149,165 @@ async function ensureModelExists() {
  * Builds the system prompt for the design editor
  * @returns {string} System prompt with current design file context
  */
-function buildDesignSystemPrompt() {
-  const currentFiles = formatDesignFilesForPrompt();
+function getLatestUserMessage(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) return '';
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i]?.role === 'user' && typeof messages[i].content === 'string') {
+      return messages[i].content;
+    }
+  }
+  return '';
+}
 
-  return `You are a Next.js + Tailwind CSS design editor. Your job is to edit the site's design files.
+function getRelevantDesignFiles(userMessage) {
+  const text = (userMessage || '').toLowerCase();
+  const selected = new Set();
+
+  const mentionsLayout =
+    text.includes('nav') ||
+    text.includes('navbar') ||
+    text.includes('header') ||
+    text.includes('menu') ||
+    text.includes('brand') ||
+    text.includes('logo') ||
+    text.includes('top right') ||
+    text.includes('top-left') ||
+    text.includes('top left') ||
+    text.includes('articles') ||
+    text.includes('contact') ||
+    text.includes('projects');
+
+  const mentionsHomepage =
+    text.includes('home') ||
+    text.includes('homepage') ||
+    text.includes('hero') ||
+    text.includes('landing');
+
+  const mentionsGlobalStyling =
+    text.includes('global') ||
+    text.includes('theme') ||
+    text.includes('background') ||
+    text.includes('gradient') ||
+    text.includes('color') ||
+    text.includes('typography') ||
+    text.includes('font');
+
+  if (mentionsHomepage) {
+    selected.add('src/app/page.tsx');
+  }
+
+  if (mentionsLayout) {
+    selected.add('src/app/layout.tsx');
+  }
+
+  if (mentionsGlobalStyling) {
+    selected.add('src/app/globals.css');
+  }
+
+  if (text.includes('blog list') || text.includes('all posts') || text.includes('blog page')) {
+    selected.add('src/app/blog/page.tsx');
+  }
+
+  if (text.includes('post page') || text.includes('article') || text.includes('slug') || text.includes('single post')) {
+    selected.add('src/app/blog/[slug]/page.tsx');
+  }
+
+  if (text.includes('blog')) {
+    selected.add('src/app/blog/page.tsx');
+    selected.add('src/app/blog/[slug]/page.tsx');
+  }
+
+  if (selected.size === 1) {
+    // keep single-file requests fast by not forcing extra files
+    return [...selected];
+  }
+
+  if (selected.size === 0) {
+    // safe default for generic design asks
+    selected.add('src/app/page.tsx');
+    selected.add('src/app/globals.css');
+  }
+
+  return DESIGN_FILES.filter((f) => selected.has(f));
+}
+
+async function getFastDesignModel() {
+  const now = Date.now();
+  if (cachedDesignModel && (now - cachedDesignModelAt) < 10 * 60 * 1000) {
+    return cachedDesignModel;
+  }
+
+  const available = await getAvailableModels();
+
+  const preferredOrder = [
+    'llama3.2:3b',
+    'mistral:latest',
+    'qwen2.5:3b',
+    'phi3:mini',
+    'gemma2:2b',
+    MODEL_NAME,
+    'llama3.1:8b'
+  ];
+
+  const chosen = preferredOrder.find((name) => available.some((a) => a === name || a.startsWith(name))) || MODEL_NAME;
+  cachedDesignModel = chosen;
+  cachedDesignModelAt = now;
+  return chosen;
+}
+
+function getDesignFallbackModels(primaryModel, availableModels) {
+  const ordered = [
+    primaryModel,
+    'llama3.2:3b',
+    'mistral:latest',
+    MODEL_NAME,
+    'llama3.1:8b'
+  ];
+
+  const seen = new Set();
+  const result = [];
+
+  for (const model of ordered) {
+    if (!model || seen.has(model)) continue;
+    if (availableModels.length > 0 && !availableModels.some((a) => a === model || a.startsWith(model))) {
+      continue;
+    }
+    seen.add(model);
+    result.push(model);
+  }
+
+  if (result.length === 0) {
+    result.push(primaryModel || MODEL_NAME);
+  }
+  return result;
+}
+
+function isRunnerCrashText(text) {
+  const t = (text || '').toLowerCase();
+  return t.includes('runner process has terminated') || t.includes('exit status 2') || t.includes('llama runner');
+}
+
+function buildDesignSystemPrompt(userMessage = '') {
+  const relevantFiles = getRelevantDesignFiles(userMessage);
+  const currentFiles = formatDesignFilesForPrompt(relevantFiles);
+
+  return `You are a Next.js + Tailwind CSS developer. Edit only the files below.
 
 CURRENT DESIGN FILES:
 ${currentFiles}
 
-CRITICAL FORMAT - For each file you want to change, output a code block like this:
-
+OUTPUT FORMAT (required):
 \`\`\`tsx
 FILE: src/app/page.tsx
-...complete new file content...
+...complete file content...
 \`\`\`
 
-\`\`\`css
-FILE: src/app/globals.css
-...complete new file content...
-\`\`\`
-
-RULES:
-1. Only output files that actually need to change - don't output unchanged files
-2. Always output the COMPLETE file content, never partial
-3. Keep all existing imports and functionality - only change visual styling
-4. Use Tailwind CSS classes for styling where possible
-5. Preserve all TypeScript types and Next.js data-fetching logic
-6. After the code blocks, briefly explain what you changed
-
-Editable files: ${DESIGN_FILES.join(', ')}`;
+Rules:
+1) Real code only (no placeholder headings)
+2) Complete file content for each changed file
+3) Preserve imports/types/data logic
+4) No explanations inside code blocks
+5) Editable files for this request: ${relevantFiles.join(', ')}`;
 }
 
 /**
@@ -173,25 +316,71 @@ Editable files: ${DESIGN_FILES.join(', ')}`;
  * @returns {Promise<string>} LLM response content
  */
 async function chatForDesign(messages) {
-  const systemPrompt = buildDesignSystemPrompt();
+  const latestUserMessage = getLatestUserMessage(messages);
+  const systemPrompt = buildDesignSystemPrompt(latestUserMessage);
+  const designModel = await getFastDesignModel();
+  const availableModels = await getAvailableModels();
+  const candidateModels = getDesignFallbackModels(designModel, availableModels);
 
   const fullMessages = [
     { role: 'system', content: systemPrompt },
     ...messages
   ];
 
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      messages: fullMessages,
-      stream: false
-    })
-  });
+  for (const model of candidateModels) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 240000);
 
-  const data = await response.json();
-  return data.message?.content || 'No response';
+    let response;
+    try {
+      response = await fetch(`${OLLAMA_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          messages: fullMessages,
+          stream: false,
+          options: {
+            temperature: 0.2,
+            num_predict: 1800
+          }
+        }),
+        signal: controller.signal
+      });
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        return 'Request timed out while waiting for Ollama (4 min). Try a more focused request or run again.';
+      }
+      continue;
+    }
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      console.error('Ollama error:', response.status, errText, 'model=', model);
+
+      if (isRunnerCrashText(errText)) {
+        if (cachedDesignModel === model) {
+          cachedDesignModel = null;
+          cachedDesignModelAt = 0;
+        }
+        continue;
+      }
+
+      return `Ollama returned an error (${response.status}): ${errText}`;
+    }
+
+    const data = await response.json().catch(() => ({}));
+    const content = data.message?.content || data.response || '';
+    if (content) {
+      cachedDesignModel = model;
+      cachedDesignModelAt = Date.now();
+      return content;
+    }
+  }
+
+  return 'Ollama runner crashed for available models. Try restarting Ollama (`ollama serve`) and retry.';
 }
 
 module.exports = {

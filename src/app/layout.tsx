@@ -27,10 +27,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <nav className="nav">
-          <Link href="/" className="nav-brand">IronGiant.dev</Link>
+          <Link href="/" className="nav-brand">Saber&apos;s Blog</Link>
           <ul className="nav-links">
             <li><Link href="/">Home</Link></li>
-            <li><Link href="/blog">Blog</Link></li>
+            <li><Link href="/blog">Articles</Link></li>
+            <li><Link href="/">Projects</Link></li>
+            <li><Link href="/">Contact</Link></li>
             <li>
               <a
                 href="https://github.com/ss889"

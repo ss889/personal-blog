@@ -11,6 +11,12 @@
  *  - list_design_files      : List all editable Next.js design files
  *  - read_design_file       : Read a specific design file
  *  - write_design_file      : Edit a design file (with backup + TS check)
+ *  - list_style_profiles    : List saved style profiles
+ *  - ingest_design_references: Save URLs/images/terminology for a profile
+ *  - build_style_profile    : Add objective/tokens/components/rules
+ *  - read_style_profile     : Read the stored profile JSON
+ *  - refine_style_profile   : Merge updates into an existing profile
+ *  - apply_style_profile    : Run one-shot design update from profile
  *  - push_to_github         : Push all changes to GitHub
  *  - get_blog_status        : Overview of all files and git status
  */
@@ -23,7 +29,16 @@ const {
 } = require('@modelcontextprotocol/sdk/types.js');
 
 const { getAllContent, writeContentFile } = require('./services/content');
-const { getAllDesignFiles, applyDesignChanges, DESIGN_FILES } = require('./services/design');
+const { getAllDesignFiles, applyDesignChanges, parseDesignFileResponse, DESIGN_FILES } = require('./services/design');
+const { chatForDesign } = require('./services/ollama');
+const {
+  listProfiles,
+  readProfile,
+  ingestDesignReferences,
+  buildStyleProfile,
+  refineStyleProfile,
+  buildProfileDesignRequest
+} = require('./services/style-profile');
 const { pushToGitHub } = require('./services/git');
 const { execSync } = require('child_process');
 
@@ -112,6 +127,113 @@ const TOOLS = [
         }
       },
       required: ['path', 'content']
+    }
+  },
+  {
+    name: 'list_style_profiles',
+    description: 'List saved design style profiles',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: []
+    }
+  },
+  {
+    name: 'ingest_design_references',
+    description: 'Store reference URLs, image paths, terminology, and notes in a named style profile',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        profileName: {
+          type: 'string',
+          description: 'Profile name, e.g. portfolio-v1'
+        },
+        urls: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Reference URLs to mimic'
+        },
+        imagePaths: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Local image paths with reference designs'
+        },
+        terminology: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Design terms like glassmorphism, minimal, etc.'
+        },
+        notes: {
+          type: 'string',
+          description: 'Free-form notes and constraints'
+        }
+      },
+      required: ['profileName']
+    }
+  },
+  {
+    name: 'build_style_profile',
+    description: 'Set objective and design tokens/components/rules for a profile',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        profileName: { type: 'string' },
+        objective: { type: 'string' },
+        tokens: { type: 'object' },
+        components: { type: 'object' },
+        rules: {
+          type: 'array',
+          items: { type: 'string' }
+        }
+      },
+      required: ['profileName']
+    }
+  },
+  {
+    name: 'read_style_profile',
+    description: 'Read a saved style profile JSON',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        profileName: { type: 'string' }
+      },
+      required: ['profileName']
+    }
+  },
+  {
+    name: 'refine_style_profile',
+    description: 'Merge updates into an existing style profile',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        profileName: { type: 'string' },
+        updates: { type: 'object' }
+      },
+      required: ['profileName', 'updates']
+    }
+  },
+  {
+    name: 'apply_style_profile',
+    description: 'Apply a style profile to design files using the design model, then optionally auto-push',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        profileName: { type: 'string' },
+        goal: {
+          type: 'string',
+          description: 'Optional task objective, e.g. "Adopt profile on homepage only"'
+        },
+        targetFiles: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Subset of editable design files'
+        },
+        autoPush: {
+          type: 'boolean',
+          description: 'If true, push after successful apply'
+        }
+      },
+      required: ['profileName']
     }
   },
   {
@@ -235,6 +357,114 @@ function handleWriteDesignFile({ path: filePath, content }) {
   }
 }
 
+function handleListStyleProfiles() {
+  const profiles = listProfiles();
+  if (profiles.length === 0) {
+    return toolResult('No style profiles yet. Use ingest_design_references first.');
+  }
+  return toolResult(
+    `Style profiles (${profiles.length}):\n` +
+    profiles.map((p) => `  - ${p}`).join('\n')
+  );
+}
+
+function handleIngestDesignReferences(args) {
+  try {
+    const profile = ingestDesignReferences(args);
+    return toolResult(
+      `✓ Saved references for profile: ${profile.profileName}\n` +
+      `URLs: ${profile.references.urls.length}, Images: ${profile.references.imagePaths.length}, Terms: ${profile.terminology.length}`
+    );
+  } catch (error) {
+    return toolResult(`Failed to ingest references: ${error.message}`, true);
+  }
+}
+
+function handleBuildStyleProfile(args) {
+  try {
+    const profile = buildStyleProfile(args);
+    return toolResult(
+      `✓ Updated style profile: ${profile.profileName}\n` +
+      `Objective: ${profile.objective || '(none)'}\n` +
+      `Rules: ${(profile.rules || []).length}`
+    );
+  } catch (error) {
+    return toolResult(`Failed to build style profile: ${error.message}`, true);
+  }
+}
+
+function handleReadStyleProfile({ profileName }) {
+  const profile = readProfile(profileName);
+  if (!profile) {
+    return toolResult(`Profile not found: ${profileName}`, true);
+  }
+  return toolResult(JSON.stringify(profile, null, 2));
+}
+
+function handleRefineStyleProfile(args) {
+  try {
+    const profile = refineStyleProfile(args);
+    return toolResult(`✓ Refined style profile: ${profile.profileName}`);
+  } catch (error) {
+    return toolResult(`Failed to refine profile: ${error.message}`, true);
+  }
+}
+
+async function handleApplyStyleProfile({ profileName, goal, targetFiles = [], autoPush = false }) {
+  const profile = readProfile(profileName);
+  if (!profile) {
+    return toolResult(`Profile not found: ${profileName}. Create it with ingest_design_references first.`, true);
+  }
+
+  const normalizedTargets = Array.isArray(targetFiles) ? targetFiles.filter((f) => DESIGN_FILES.includes(f)) : [];
+  const invalidTargets = Array.isArray(targetFiles)
+    ? targetFiles.filter((f) => !DESIGN_FILES.includes(f))
+    : [];
+
+  if (invalidTargets.length > 0) {
+    return toolResult(`Invalid targetFiles: ${invalidTargets.join(', ')}\nAllowed: ${DESIGN_FILES.join(', ')}`, true);
+  }
+
+  const requestText = buildProfileDesignRequest(profile, {
+    goal,
+    targetFiles: normalizedTargets
+  });
+
+  const llmResponse = await chatForDesign([
+    { role: 'user', content: requestText }
+  ]);
+
+  const fileChanges = parseDesignFileResponse(llmResponse || '');
+  if (fileChanges.length === 0) {
+    return toolResult(
+      `No valid code changes produced by model.\nModel response:\n${llmResponse || '(empty)'}`,
+      true
+    );
+  }
+
+  const applyResult = applyDesignChanges(fileChanges);
+  if (!applyResult.success) {
+    return toolResult(`Apply failed: ${applyResult.error}`, true);
+  }
+
+  let pushed = false;
+  let pushMsg = '';
+  if (autoPush) {
+    const pushResult = pushToGitHub(__dirname);
+    pushed = !!pushResult.pushed;
+    pushMsg = pushResult.success
+      ? (pushed ? '\n✓ Auto-pushed to GitHub.' : '\nNo new changes to push.')
+      : `\nAuto-push failed: ${pushResult.error}`;
+  }
+
+  return toolResult(
+    `✓ Applied style profile: ${profile.profileName}\n` +
+    `Files updated (${applyResult.filesUpdated.length}):\n` +
+    applyResult.filesUpdated.map((f) => `  - ${f}`).join('\n') +
+    `${pushMsg}`
+  );
+}
+
 /**
  * Handles push_to_github
  */
@@ -296,6 +526,11 @@ function dispatchTool(name, args) {
     case 'list_design_files':   return handleListDesignFiles();
     case 'read_design_file':    return handleReadDesignFile(args);
     case 'write_design_file':   return handleWriteDesignFile(args);
+    case 'list_style_profiles': return handleListStyleProfiles();
+    case 'ingest_design_references': return handleIngestDesignReferences(args);
+    case 'build_style_profile': return handleBuildStyleProfile(args);
+    case 'read_style_profile': return handleReadStyleProfile(args);
+    case 'refine_style_profile': return handleRefineStyleProfile(args);
     case 'push_to_github':      return handlePushToGitHub();
     case 'get_blog_status':     return handleGetBlogStatus();
     default:
@@ -316,6 +551,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }))
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+  if (name === 'apply_style_profile') {
+    return handleApplyStyleProfile(args || {});
+  }
   return dispatchTool(name, args || {});
 });
 

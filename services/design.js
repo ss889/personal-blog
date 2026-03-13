@@ -44,10 +44,13 @@ function getAllDesignFiles() {
 
 /**
  * Formats design files as a readable string for LLM prompts
+ * @param {string[]} [selectedPaths] - Optional subset of DESIGN_FILES
  * @returns {string} Formatted content section
  */
-function formatDesignFilesForPrompt() {
+function formatDesignFilesForPrompt(selectedPaths = DESIGN_FILES) {
+  const selectedSet = new Set(selectedPaths);
   return getAllDesignFiles()
+    .filter(f => selectedSet.has(f.relativePath))
     .map(f => `=== FILE: ${f.relativePath} ===\n${f.content}\n=== END ${f.relativePath} ===`)
     .join('\n\n');
 }
@@ -180,6 +183,31 @@ function applyDesignChanges(fileChanges) {
  * @param {string} response - LLM response text
  * @returns {Array<{relativePath: string, content: string}>}
  */
+/**
+ * Returns true if the content looks like real code rather than placeholder text
+ * @param {string} content
+ * @returns {boolean}
+ */
+function looksLikeCode(content) {
+  if (!content || content.trim().length < 30) return false;
+  const codeSignals = [
+    /<[a-z]/i,           // JSX/HTML tags
+    /className=/,        // Tailwind JSX
+    /import /,           // ES imports
+    /export /,           // ES exports
+    /\{.*\}/,            // JS expressions
+    /@import/,           // CSS imports
+    /:[^:]+;/,           // CSS property: value;
+  ];
+  const signalCount = codeSignals.filter(re => re.test(content)).length;
+  // Reject if it's mostly short lines with no code signals (placeholder headings)
+  if (signalCount === 0) {
+    console.warn('parseDesignFileResponse: content has no code signals — likely placeholder text, skipping');
+    return false;
+  }
+  return true;
+}
+
 function parseDesignFileResponse(response) {
   const changes = [];
   const codeBlockRegex = /```(?:tsx?|css|javascript)?\s*\n?\s*FILE:\s*(\S+)\s*\n([\s\S]*?)```/gi;
@@ -189,12 +217,17 @@ function parseDesignFileResponse(response) {
     const relativePath = match[1].trim();
     const content = match[2].trim();
 
-    // Only allow known design files
-    if (DESIGN_FILES.includes(relativePath)) {
-      changes.push({ relativePath, content });
-    } else {
+    if (!DESIGN_FILES.includes(relativePath)) {
       console.warn(`Ignoring unknown design file: ${relativePath}`);
+      continue;
     }
+
+    if (!looksLikeCode(content)) {
+      console.warn(`Skipping ${relativePath}: content does not appear to be code`);
+      continue;
+    }
+
+    changes.push({ relativePath, content });
   }
 
   return changes;

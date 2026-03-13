@@ -9,7 +9,8 @@ const elements = {
   input: document.getElementById('input'),
   sendBtn: document.getElementById('send'),
   recordBtn: document.getElementById('record'),
-  autoPushCheckbox: document.getElementById('autoPush')
+  autoPushCheckbox: document.getElementById('autoPush'),
+  quickActions: document.getElementById('quickActions')
 };
 
 // Application State
@@ -52,7 +53,8 @@ function addMessage(role, content, isSystem = false) {
  * @returns {string} Formatted HTML content
  */
 function formatMessageContent(content) {
-  return content
+  if (!content) return '';
+  return String(content)
     .replace(/\n/g, '<br>')
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre>$2</pre>');
 }
@@ -107,6 +109,9 @@ function setMode(mode) {
   document.getElementById('filesBar').style.display = isDesign ? 'none' : 'flex';
   document.getElementById('designBar').style.display = isDesign ? 'flex' : 'none';
   document.getElementById('designHint').style.display = isDesign ? 'block' : 'none';
+  if (elements.quickActions) {
+    elements.quickActions.classList.toggle('design-actions', isDesign);
+  }
   elements.input.placeholder = isDesign
     ? 'Describe a design change, e.g. "make the background dark with a gradient"'
     : 'What would you like to write about?';
@@ -213,9 +218,14 @@ async function sendMessage() {
     if (state.mode === 'design') {
       const response = await fetchDesignResponse(state.history, state.autoPushEnabled);
       hideTypingIndicator();
-      handleDesignUpdateResponse(response);
-      addMessage('assistant', response.response);
-      state.history.push({ role: 'assistant', content: response.response });
+      if (response.error) {
+        addMessage('assistant', `Error: ${response.error}`);
+      } else {
+        handleDesignUpdateResponse(response);
+        const msg = response.response || 'Done!';
+        addMessage('assistant', msg);
+        state.history.push({ role: 'assistant', content: msg });
+      }
     } else {
       const response = await fetchChatResponse(state.history, state.autoPushEnabled);
       hideTypingIndicator();
@@ -239,12 +249,7 @@ async function sendMessage() {
  * @returns {Promise<Object>} API response
  */
 async function fetchDesignResponse(messages, autoPush) {
-  const response = await fetch('/design-chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, autoPush })
-  });
-  return response.json();
+  return fetchJsonWithRetry('/design-chat', { messages, autoPush });
 }
 
 /**
@@ -254,12 +259,61 @@ async function fetchDesignResponse(messages, autoPush) {
  * @returns {Promise<Object>} API response
  */
 async function fetchChatResponse(messages, autoPush) {
-  const response = await fetch('/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, autoPush })
-  });
-  return response.json();
+  return fetchJsonWithRetry('/chat', { messages, autoPush });
+}
+
+/**
+ * Performs a JSON POST with timeout + one retry for transient failures
+ * @param {string} url
+ * @param {Object} payload
+ * @returns {Promise<Object>}
+ */
+async function fetchJsonWithRetry(url, payload) {
+  const attempt = async (targetUrl) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 360000);
+
+    try {
+      const response = await fetch(targetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = data?.error || data?.message || `Request failed (${response.status})`;
+        throw new Error(error);
+      }
+
+      return data;
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  try {
+    return await attempt(url);
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out after 6 minutes. Ollama is still processing; try again or reduce scope to one file.');
+    }
+
+    if ((error.message || '').toLowerCase().includes('fetch failed')) {
+      const fallbackUrl = `http://localhost:3001${url}`;
+      try {
+        return await attempt(fallbackUrl);
+      } catch (fallbackError) {
+        if (fallbackError.name === 'AbortError') {
+          throw new Error('Request timed out after 6 minutes. Ollama is still processing; try again or reduce scope to one file.');
+        }
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return attempt(url);
+  }
 }
 
 /**
@@ -398,6 +452,34 @@ function toggleRecording() {
   }
 }
 
+/**
+ * Sends a predefined quick action prompt
+ * @param {string} prompt
+ * @param {'content'|'design'} mode
+ */
+async function runQuickAction(prompt, mode) {
+  if (!prompt || elements.sendBtn.disabled) return;
+  if (mode && state.mode !== mode) {
+    setMode(mode);
+  }
+  elements.input.value = prompt;
+  await sendMessage();
+}
+
+/**
+ * Initializes quick action button click handling
+ */
+function initQuickActions() {
+  if (!elements.quickActions) return;
+  elements.quickActions.addEventListener('click', async (event) => {
+    const target = event.target.closest('.quick-action-btn');
+    if (!target) return;
+    const prompt = target.getAttribute('data-prompt') || '';
+    const mode = target.getAttribute('data-mode') || state.mode;
+    await runQuickAction(prompt, mode);
+  });
+}
+
 // Event Listeners
 elements.autoPushCheckbox.onchange = () => {
   state.autoPushEnabled = elements.autoPushCheckbox.checked;
@@ -410,3 +492,5 @@ elements.input.onkeydown = (event) => {
     sendMessage();
   }
 };
+
+initQuickActions();

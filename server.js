@@ -296,7 +296,20 @@ async function handleTranscribeRequest(req, res) {
 async function handleDesignChatRequest(req, res) {
   try {
     const { messages, autoPush } = await parseJsonBody(req);
-    const response = await chatForDesign(messages);
+    const rawResponse = await chatForDesign(messages);
+    const response = (typeof rawResponse === 'string' && rawResponse) ? rawResponse : '';
+
+    if (!response) {
+      sendJson(res, 200, {
+        response: 'Ollama did not return a response. Make sure Ollama is running and the model is loaded.',
+        filesUpdated: [],
+        reverted: false,
+        designError: 'Empty response from Ollama',
+        pushed: false,
+        pushError: null
+      });
+      return;
+    }
 
     // Parse file changes from LLM response
     const fileChanges = parseDesignFileResponse(response);
@@ -304,6 +317,8 @@ async function handleDesignChatRequest(req, res) {
 
     if (fileChanges.length > 0) {
       designResult = applyDesignChanges(fileChanges);
+    } else {
+      designResult.error = 'The model did not produce valid code. Try rephrasing — e.g. "Redesign the homepage with a dark hero section and card grid using Tailwind CSS."';
     }
 
     // Strip code blocks from the displayed response
@@ -340,6 +355,12 @@ async function handleDesignChatRequest(req, res) {
  */
 async function handleRequest(req, res) {
   const { method, url } = req;
+
+  // Route: GET /health - lightweight health check
+  if (method === 'GET' && url === '/health') {
+    sendJson(res, 200, { ok: true });
+    return;
+  }
 
   // Route: GET / - Serve index.html
   if (method === 'GET' && url === '/') {
@@ -388,8 +409,25 @@ async function handleRequest(req, res) {
   res.end('Not found');
 }
 
-// Create HTTP server
-const server = http.createServer(handleRequest);
+// Create HTTP server with top-level safety wrapper
+const server = http.createServer((req, res) => {
+  handleRequest(req, res).catch((error) => {
+    console.error('Unhandled request error:', error);
+    if (!res.headersSent) {
+      sendJson(res, 500, { error: error.message || 'Internal server error' });
+    } else {
+      res.end();
+    }
+  });
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error);
+});
 
 /**
  * Starts the server, then verifies the Ollama model in the background
