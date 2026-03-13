@@ -36,11 +36,13 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 ## Navigation Bar
 
 <nav class="nav">
-  <ul>
-    <li><a href="#">Home</a></li>
-    <li><a href="#">Blog</a></li>
-    <li><a href="#">Contact</a></li>
-  </ul>
+  <div class="nav-container">
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </div>
 </nav>
 
 <style>
@@ -55,6 +57,11 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
     background-color: #2f343a;
     color: white;
     font-family: 'Inter', sans-serif;
+  }
+
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .nav ul {
@@ -108,7 +115,7 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 
   .project-title {
     color: white;
-    font-size: 18px;
+    font-size: 24px;
     margin-bottom: 8px;
   }
 
@@ -152,12 +159,27 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 
   .post-title {
     color: white;
-    font-size: 18px;
+    font-size: 24px;
     margin-bottom: 8px;
   }
 
   .post-date {
     color: #666;
+    font-size: 14px;
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .post-tag {
+    background-color: #333;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 16px;
     font-size: 14px;
   }
 </style>
@@ -180,3 +202,4 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
     font-family: 'Inter', sans-serif;
   }
 </style>
+</div>

@@ -12,7 +12,7 @@ export default async function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="hero bg-gradient-to-b from-purple-900 via-purple-800 to-purple-700">
+      <section className="hero">
         <div className="hero-badge">
           <span>•</span> Open to opportunities
         </div>
