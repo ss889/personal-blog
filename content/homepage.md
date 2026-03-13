@@ -7,7 +7,7 @@ excerpt: Showcasing my projects, passions, and professional journey in web devel
 ## Hero Section
 
 <div class="hero">
-  <h1 class="name">[Your Name]</h1>
+  <h1 class="name">Sab's Blog</h1>
   <p class="bio">Senior Web Developer | Designer | Storyteller</p>
 </div>
 
