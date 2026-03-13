@@ -210,24 +210,45 @@ function looksLikeCode(content) {
 
 function parseDesignFileResponse(response) {
   const changes = [];
+  const seen = new Set();
+
+  function addChange(relativePath, content) {
+    if (!DESIGN_FILES.includes(relativePath)) {
+      console.warn(`Ignoring unknown design file: ${relativePath}`);
+      return;
+    }
+
+    if (!looksLikeCode(content)) {
+      console.warn(`Skipping ${relativePath}: content does not appear to be code`);
+      return;
+    }
+
+    if (seen.has(relativePath)) {
+      const idx = changes.findIndex((c) => c.relativePath === relativePath);
+      if (idx >= 0) {
+        changes[idx] = { relativePath, content };
+      }
+      return;
+    }
+
+    seen.add(relativePath);
+    changes.push({ relativePath, content });
+  }
+
   const codeBlockRegex = /```(?:tsx?|css|javascript)?\s*\n?\s*FILE:\s*(\S+)\s*\n([\s\S]*?)```/gi;
   let match;
 
   while ((match = codeBlockRegex.exec(response)) !== null) {
     const relativePath = match[1].trim();
     const content = match[2].trim();
+    addChange(relativePath, content);
+  }
 
-    if (!DESIGN_FILES.includes(relativePath)) {
-      console.warn(`Ignoring unknown design file: ${relativePath}`);
-      continue;
-    }
-
-    if (!looksLikeCode(content)) {
-      console.warn(`Skipping ${relativePath}: content does not appear to be code`);
-      continue;
-    }
-
-    changes.push({ relativePath, content });
+  const plainBlockRegex = /(?:^|\n)FILE:\s*(\S+)\s*\n([\s\S]*?)(?=\nFILE:\s*\S+\s*\n|$)/gi;
+  while ((match = plainBlockRegex.exec(response)) !== null) {
+    const relativePath = match[1].trim();
+    const content = match[2].trim();
+    addChange(relativePath, content);
   }
 
   return changes;
