@@ -54,6 +54,41 @@ export default async function Home() {
 
       <hr className="divider" />
 
+      {/* Projects */}
+      <section className="section">
+        <p className="section-label">Projects</p>
+        <h2 className="section-title">Some of my work</h2>
+        <p className="section-subtitle">Personal and professional projects</p>
+        <div className="posts-grid">
+          <Link href="/projects" className="post-card">
+            <div className="post-card-date">
+              {new Date("2022-01-01").toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </div>
+            <h3>Personal Website</h3>
+            <p>A Next.js website built with Tailwind CSS</p>
+            <div className="post-card-arrow">View project →</div>
+          </Link>
+          <Link href="/projects" className="post-card">
+            <div className="post-card-date">
+              {new Date("2022-02-01").toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </div>
+            <h3>Blog</h3>
+            <p>A blog built with Next.js and Markdown</p>
+            <div className="post-card-arrow">View project →</div>
+          </Link>
+        </div>
+      </section>
+
+      <hr className="divider" />
+
       {/* Posts */}
       <section className="section">
         <p className="section-label">Writing</p>
