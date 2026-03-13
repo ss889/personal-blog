@@ -349,6 +349,66 @@ async function handleDesignChatRequest(req, res) {
 }
 
 /**
+ * Handles image uploads to public/images directory
+ * @param {http.IncomingMessage} req - HTTP request object
+ * @param {http.ServerResponse} res - HTTP response object
+ */
+async function handleImageUpload(req, res) {
+  try {
+    const imagesDir = path.join(__dirname, 'public', 'images');
+    
+    // Ensure images directory exists
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir, { recursive: true });
+    }
+
+    // Get filename from Content-Disposition header or use timestamp
+    const contentDisposition = req.headers['content-disposition'];
+    let filename = `image-${Date.now()}.jpg`;
+    
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (match && match[1]) {
+        filename = match[1].toLowerCase().replace(/[^a-z0-9.-]/g, '-');
+      }
+    }
+
+    // Security: only allow image extensions
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg'];
+    const ext = path.extname(filename).toLowerCase();
+    if (!allowedExts.includes(ext)) {
+      res.writeHead(400);
+      res.end(JSON.stringify({ error: 'Invalid file type. Allowed: ' + allowedExts.join(', ') }));
+      return;
+    }
+
+    const filepath = path.join(imagesDir, filename);
+    const writeStream = fs.createWriteStream(filepath);
+
+    req.pipe(writeStream);
+
+    writeStream.on('finish', () => {
+      const imageUrl = `/images/${filename}`;
+      sendJson(res, 200, { 
+        success: true, 
+        filename,
+        url: imageUrl,
+        message: `Image uploaded successfully to ${imageUrl}`
+      });
+    });
+
+    writeStream.on('error', (err) => {
+      console.error('Upload error:', err);
+      sendJson(res, 500, { error: 'Failed to upload image: ' + err.message });
+    });
+
+  } catch (error) {
+    console.error('Upload handler error:', error.message);
+    sendJson(res, 500, { error: error.message });
+  }
+}
+
+/**
  * Main request router
  * @param {http.IncomingMessage} req - HTTP request object
  * @param {http.ServerResponse} res - HTTP response object
@@ -401,6 +461,12 @@ async function handleRequest(req, res) {
   // Route: POST /design-chat - Edit Next.js design files
   if (method === 'POST' && url === '/design-chat') {
     await handleDesignChatRequest(req, res);
+    return;
+  }
+
+  // Route: POST /upload - Upload images
+  if (method === 'POST' && url === '/upload') {
+    await handleImageUpload(req, res);
     return;
   }
 

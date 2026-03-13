@@ -237,6 +237,79 @@ function sanitizeGeneratedCode(content) {
   return out;
 }
 
+/**
+ * Validates that code is syntactically complete and not broken
+ * @param {string} content - Code to validate
+ * @returns {{ valid: boolean, error: string|null }}
+ */
+function validateCodeSyntax(content) {
+  // Check for balanced braces/brackets/parens
+  const braceCount = (content.match(/\{/g) || []).length - (content.match(/\}/g) || []).length;
+  const bracketCount = (content.match(/\[/g) || []).length - (content.match(/\]/g) || []).length;
+  const parenCount = (content.match(/\(/g) || []).length - (content.match(/\)/g) || []).length;
+
+  if (braceCount !== 0) {
+    return { valid: false, error: `Unbalanced braces: ${braceCount > 0 ? 'missing }' : 'extra }'}` };
+  }
+  if (bracketCount !== 0) {
+    return { valid: false, error: `Unbalanced brackets: ${bracketCount > 0 ? 'missing ]' : 'extra ]'}` };
+  }
+  if (parenCount !== 0) {
+    return { valid: false, error: `Unbalanced parentheses: ${parenCount > 0 ? 'missing )' : 'extra )'}` };
+  }
+
+  // Check for unclosed JSX tags
+  const openTags = (content.match(/<[A-Z][A-Za-z0-9]*(?:\s[^>]*)?>/g) || []).length;
+  const closeTags = (content.match(/<\/[A-Z][A-Za-z0-9]*>/g) || []).length;
+  const selfClosingTags = (content.match(/<[A-Z][A-Za-z0-9]*(?:\s[^>]*)?\s*\/>/g) || []).length;
+  
+  if (openTags !== closeTags + selfClosingTags) {
+    return { valid: false, error: `Unclosed JSX tags detected` };
+  }
+
+  // Check for incomplete file (no closing braces at all)
+  if (!content.trim().endsWith('}') && !content.trim().endsWith(';') && !content.trim().endsWith(')')) {
+    // CSS files can end with } or other ways
+    if (!content.includes('CSS') && !content.includes('@media')) {
+      return { valid: false, error: `File appears incomplete (doesn't end with closing bracket)` };
+    }
+  }
+
+  return { valid: true, error: null };
+}
+
+/**
+ * Validates that parsed content is complete and safe to apply
+ * @param {string} relativePath - File path
+ * @param {string} content - File content
+ * @returns {{ safe: boolean, warning: string|null }}
+ */
+function validateParsedContent(relativePath, content) {
+  const syntaxCheck = validateCodeSyntax(content);
+  if (!syntaxCheck.valid) {
+    return { safe: false, warning: syntaxCheck.error };
+  }
+
+  // Check that file isn't truncated (should have at least some structure)
+  const isTsx = relativePath.endsWith('.tsx');
+  const isCss = relativePath.endsWith('.css');
+
+  if (isTsx) {
+    if (!content.includes('export')) {
+      return { safe: false, warning: 'TSX file missing export statement' };
+    }
+    if (!content.includes('return') && !content.includes('return (')) {
+      return { safe: false, warning: 'Component missing return statement' };
+    }
+  }
+
+  if ((isTsx || isCss) && content.length < 50) {
+    return { safe: false, warning: 'File content too short - likely incomplete' };
+  }
+
+  return { safe: true, warning: null };
+}
+
 function parseDesignFileResponse(response, hintFiles = []) {
   const changes = [];
   const seen = new Set();
@@ -251,6 +324,13 @@ function parseDesignFileResponse(response, hintFiles = []) {
 
     if (!looksLikeCode(sanitized)) {
       console.warn(`Skipping ${relativePath}: content does not appear to be code`);
+      return;
+    }
+
+    // NEW: Validate before adding
+    const validation = validateParsedContent(relativePath, sanitized);
+    if (!validation.safe) {
+      console.warn(`Skipping ${relativePath}: ${validation.warning}`);
       return;
     }
 

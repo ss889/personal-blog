@@ -12,12 +12,12 @@ export default async function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="hero">
+      <section className="hero bg-gradient-to-b from-purple-900 via-purple-800 to-purple-700">
         <div className="hero-badge">
           <span>•</span> Open to opportunities
         </div>
         <h1>
-          Hi, I&apos;m <span>Saber</span>
+          <span>Hi, I&apos;m Saber</span>
         </h1>
         <p>
           Software developer who builds useful things. I write about web
