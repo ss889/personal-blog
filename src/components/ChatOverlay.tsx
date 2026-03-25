@@ -52,7 +52,7 @@ export default function ChatOverlay({ isOpen, onClose, category }: ChatOverlayPr
       timestamp: new Date()
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev: Message[]) => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
     setError(null);
@@ -65,7 +65,7 @@ export default function ChatOverlay({ isOpen, onClose, category }: ChatOverlayPr
         },
         body: JSON.stringify({
           message: inputValue,
-          conversationHistory: messages.map((msg) => ({
+          conversationHistory: messages.map((msg: Message) => ({
             role: msg.role,
             content: msg.content
           })),
@@ -88,7 +88,7 @@ export default function ChatOverlay({ isOpen, onClose, category }: ChatOverlayPr
         timestamp: new Date()
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages((prev: Message[]) => [...prev, assistantMessage]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
       setError(errorMessage);
@@ -159,7 +159,7 @@ export default function ChatOverlay({ isOpen, onClose, category }: ChatOverlayPr
               </div>
             )}
 
-            {messages.map((message) => (
+            {messages.map((message: Message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
 
@@ -206,7 +206,8 @@ export default function ChatOverlay({ isOpen, onClose, category }: ChatOverlayPr
                   Send
                 </button>
               </div>
-              <VoiceRecorder onTranscript={handleVoiceInput} disabled={isLoading} />
+      <VoiceRecorder onTranscript={handleVoiceInput} disabled={isLoading || true} />
+      {/* TODO: Enable voice input in SPRINT 3 when /api/voice-to-text is implemented with Hugging Face Whisper API */}
             </form>
           </div>
         </div>

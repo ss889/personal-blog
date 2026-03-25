@@ -11,16 +11,16 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export function ChatProvider({ children }: { children: React.ReactNode }) {
+export function ChatProvider({ children }: { children: React.ReactNode }): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>();
 
-  const openChat = (category?: string) => {
+  const openChat = (category?: string): void => {
     setSelectedCategory(category);
     setIsOpen(true);
   };
 
-  const closeChat = () => {
+  const closeChat = (): void => {
     setIsOpen(false);
   };
 

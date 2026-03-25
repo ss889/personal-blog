@@ -15,7 +15,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const isAssistant = message.role === 'assistant';
 
   // Simple markdown parsing for bold, italic, and lists
-  const parseMarkdown = (text: string) => {
+  const parseMarkdown = (text: string): string => {
     // Handle bold
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     // Handle italic

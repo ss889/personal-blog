@@ -13,7 +13,7 @@ export default function VoiceRecorder({ onTranscript, disabled }: VoiceRecorderP
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  const startRecording = async () => {
+  const startRecording = async (): Promise<void> => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -39,14 +39,14 @@ export default function VoiceRecorder({ onTranscript, disabled }: VoiceRecorderP
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = (): void => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
   };
 
-  const processAudio = async (audioBlob: Blob) => {
+  const processAudio = async (audioBlob: Blob): Promise<void> => {
     setIsProcessing(true);
     try {
       const formData = new FormData();
