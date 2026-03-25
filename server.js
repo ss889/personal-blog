@@ -14,10 +14,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const { PORT, TEMP_DIR } = require('./config');
+const { PORT, TEMP_DIR, GROQ_URL, GROQ_MODEL, GROQ_API_KEY } = require('./config');
 
 // Services
-const { chatWithOllama, chatForDesign, ensureModelExists } = require('./services/ollama');
+const { chatWithOllama, chatForDesign, callGroq, ensureModelExists } = require('./services/ollama');
 const { extractAndApplyFileUpdate, cleanResponseForDisplay, getAllContent, resolveContentPath } = require('./services/content');
 const { pushToGitHub } = require('./services/git');
 const { transcribeAudio, ensureTempDir } = require('./services/whisper');
@@ -212,6 +212,198 @@ function collectRequestBuffer(req) {
 function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
+}
+
+/**
+ * Rate limiter for public endpoints
+ * Simple in-memory implementation: IP -> request count + timestamp
+ */
+const rateLimits = new Map();
+const RATE_LIMIT_REQUESTS = 10;      // Max 10 requests
+const RATE_LIMIT_WINDOW_MS = 60000;   // Per 60 seconds
+
+function getRateLimitKey(req) {
+  return req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+}
+
+function checkRateLimit(req) {
+  const key = getRateLimitKey(req);
+  const now = Date.now();
+  
+  if (!rateLimits.has(key)) {
+    rateLimits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  
+  const limit = rateLimits.get(key);
+  
+  // Reset window if expired
+  if (now > limit.resetAt) {
+    limit.count = 1;
+    limit.resetAt = now + RATE_LIMIT_WINDOW_MS;
+    return true;
+  }
+  
+  // Check if limit exceeded
+  if (limit.count >= RATE_LIMIT_REQUESTS) {
+    return false;
+  }
+  
+  limit.count++;
+  return true;
+}
+
+/**
+ * Gordon Ramsay system prompt for public chat
+ * @returns {string} System prompt
+ */
+function getGordonRamsaySystemPrompt() {
+  return `You are a culinary AI assistant with the expertise and passion of Gordon Ramsay, but you communicate in a way that's encouraging and accessible to home cooks of all skill levels.
+
+YOUR PERSONALITY:
+- Passionate and enthusiastic about food ("Brilliant!", "Fantastic!", "Perfect!")
+- Direct and honest, but always constructive  
+- You love teaching people to cook better
+- You celebrate when people try new things
+- You use simple language, avoid jargon unless explaining it
+- You give clear, numbered steps
+- You occasionally use British terms but explain them
+
+YOUR KNOWLEDGE:
+- Expert in all cuisines (Italian, French, Asian, American, etc.)
+- You know ingredient substitutions
+- You can scale recipes
+- You understand cooking techniques
+- You can suggest recipes based on available ingredients
+- You know how to make cheap ingredients taste amazing
+
+COMMUNICATION STYLE:
+- Start with enthusiasm
+- Break down complex techniques into simple steps
+- Use analogies: "It should sound like rain on a roof when you add it to the pan"
+- Encourage: "Don't worry, you've got this!"
+- When something won't work: "Here's the issue... but here's how to fix it"
+- Share secrets: "Here's a trick the pros use..."
+
+RESPONSE FORMAT:
+1. Answer the question directly
+2. If offering recipe, present it clearly (numbered steps)
+3. Ask follow-up question or offer alternatives
+4. Keep initial response concise (expand if asked)
+5. Use markdown for lists and formatting
+
+IMPORTANT RULES:
+✓ Always ask clarifying questions if needed
+✓ Never assume dietary restrictions
+✓ Offer 2-3 options when possible
+✓ Keep responses under 300 words initially
+✓ If user asks to create a recipe, gather all details first
+
+Now, help this person create something delicious!`;
+}
+
+/**
+ * Handles voice-to-text API requests (SPRINT 3 - Placeholder)
+ * Will be fully implemented in SPRINT 3 with Hugging Face Whisper API
+ * @param {http.IncomingMessage} req - HTTP request object
+ * @param {http.ServerResponse} res - HTTP response object
+ */
+async function handleVoiceToTextRequest(req, res) {
+  try {
+    const { HF_API_TOKEN } = require('./config');
+
+    if (!HF_API_TOKEN) {
+      sendJson(res, 503, {
+        error: 'Voice transcription is not yet configured. Add HF_API_TOKEN to .env (SPRINT 3)'
+      });
+      return;
+    }
+
+    // SPRINT 3: Will implement Hugging Face Whisper API integration here
+    // For now, return a placeholder response
+    sendJson(res, 501, {
+      error: 'Voice transcription will be available in SPRINT 3',
+      message: 'Please use text input for now'
+    });
+  } catch (error) {
+    console.error('Voice-to-text error:', error.message);
+    sendJson(res, 500, {
+      error: error.message || 'Failed to process audio'
+    });
+  }
+}
+
+/**
+ * Calls Groq API directly for public chat
+ * @param {Array} messages - Chat messages
+ * @returns {Promise<string>} LLM response
+ */
+
+
+/**
+ * Handles public chat API requests (no authentication needed)
+ * Gordon Ramsay personality, from web interface
+ * @param {http.IncomingMessage} req - HTTP request object
+ * @param {http.ServerResponse} res - HTTP response object
+ */
+async function handleChatPublicRequest(req, res) {
+  // Check rate limit
+  if (!checkRateLimit(req)) {
+    sendJson(res, 429, { 
+      error: 'Too many requests. Maximum 10 requests per minute.' 
+    });
+    return;
+  }
+
+  try {
+    const { message, conversationHistory, category } = await parseJsonBody(req);
+
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      sendJson(res, 400, { error: 'Message is required' });
+      return;
+    }
+
+    // Build messages array
+    const systemPrompt = getGordonRamsaySystemPrompt();
+    let messagesForAPI = [{ role: 'system', content: systemPrompt }];
+
+    // Add conversation history if provided
+    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+      messagesForAPI = messagesForAPI.concat(conversationHistory.slice(-10)); // Keep last 10 for context
+    }
+
+    // Add category context if provided
+    let contextMessage = message;
+    if (category) {
+      contextMessage = `[Category: ${category}] ${message}`;
+    }
+
+    // Add user message
+    messagesForAPI.push({ role: 'user', content: contextMessage });
+
+    // Call Groq API
+    const reply = await callGroq(messagesForAPI, { temperature: 0.3, maxTokens: 1800, timeoutMs: 30000 });
+
+    sendJson(res, 200, {
+      id: `msg-${Date.now()}`,
+      reply: reply,
+      suggestedRecipes: [],
+      toolCalls: [],
+      error: null
+    });
+  } catch (error) {
+    console.error('Public chat error:', error.message);
+    
+    // Determine appropriate status code
+    let statusCode = 500;
+    if (error.message.includes('timeout')) {
+      statusCode = 504;
+    }
+    
+    sendJson(res, statusCode, { 
+      error: error.message || 'Failed to process request'
+    });
+  }
 }
 
 /**
@@ -443,6 +635,18 @@ async function handleRequest(req, res) {
   // Route: POST /chat - Chat with LLM
   if (method === 'POST' && url === '/chat') {
     await handleChatRequest(req, res);
+    return;
+  }
+
+  // Route: POST /api/chat-public - Public chat endpoint (no auth required)
+  if (method === 'POST' && url === '/api/chat-public') {
+    await handleChatPublicRequest(req, res);
+    return;
+  }
+
+  // Route: POST /api/voice-to-text - Voice transcription endpoint (SPRINT 3)
+  if (method === 'POST' && url === '/api/voice-to-text') {
+    await handleVoiceToTextRequest(req, res);
     return;
   }
 

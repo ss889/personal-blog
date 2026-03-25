@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navigation from "./nav";
+import { ChatProvider } from "@/lib/ChatContext";
+import ChatLayoutWrapper from "./ChatLayoutWrapper";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,11 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Navigation />
-        {children}
-        <footer className="footer">
-          Built with Next.js &amp; deployed on GitHub Pages
-        </footer>
+        <ChatProvider>
+          <Navigation />
+          {children}
+          <ChatLayoutWrapper />
+          <footer className="footer">
+            Built with Next.js &amp; deployed on GitHub Pages
+          </footer>
+        </ChatProvider>
       </body>
     </html>
   );

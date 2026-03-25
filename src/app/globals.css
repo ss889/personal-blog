@@ -1098,6 +1098,24 @@ footer p {
   }
 }
 
+/* Animation Utilities for Chat Components */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 @media (max-width: 480px) {
   body {
     font-size: 0.95rem;
