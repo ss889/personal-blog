@@ -114,7 +114,7 @@ nav a:hover, .nav a:hover, .nav-link:hover {
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 90vh;
+  min-height: 85vh;
   padding: 6rem 2rem;
   background: #0f0f0f;
   position: relative;
@@ -128,7 +128,7 @@ nav a:hover, .nav a:hover, .nav-link:hover {
   right: -20%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(94, 234, 212, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(94, 234, 212, 0.02) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -140,7 +140,7 @@ nav a:hover, .nav a:hover, .nav-link:hover {
   left: -20%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.02) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -173,17 +173,15 @@ nav a:hover, .nav a:hover, .nav-link:hover {
 }
 
 .hero h1 span {
-  background: linear-gradient(135deg, #5eead4 0%, #8b5cf6 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
 }
 
 .hero p {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   margin-bottom: 2rem;
-  max-width: 600px;
+  max-width: 700px;
   color: #9ca3af;
+  line-height: 1.8;
 }
 
 .hero-buttons {
@@ -999,6 +997,15 @@ blockquote {
   font-style: italic;
 }
 
+/* Project Card Enhanced */
+.project-card-enhanced {
+  border-top: 2px solid #5eead4;
+}
+
+.project-card-enhanced::after {
+  display: none;
+}
+
 /* Links in Content */
 .content a {
   color: #60a5fa;
@@ -1149,4 +1156,58 @@ footer p {
     display: block;
     margin: 0.5rem 0;
   }
+}
+
+/* About Page Styles */
+.hero-about {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 50vh;
+  padding: 6rem 2rem 4rem;
+  background: #0f0f0f;
+  position: relative;
+}
+
+.hero-about h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.section-about {
+  max-width: 750px;
+}
+
+.about-content {
+  margin-bottom: 4rem;
+}
+
+.about-content p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #9ca3af;
+  margin-bottom: 1.5rem;
+}
+
+.about-links {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.about-links a {
+  font-weight: 600;
+  color: #5eead4;
+  border-bottom: 1px solid rgba(94, 234, 212, 0.3);
+  padding-bottom: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.about-links a:hover {
+  color: #2dd4bf;
+  border-color: #2dd4bf;
 }

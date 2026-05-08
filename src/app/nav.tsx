@@ -14,19 +14,16 @@ export default function Navigation() {
 
   return (
     <nav className="nav">
-      <Link href="/" className="nav-brand">Sab's Blog</Link>
+      <Link href="/" className="nav-brand">Saber</Link>
       <ul className="nav-links">
-        <li><Link href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>Home</Link></li>
-        <li><Link href="/blog" className={`nav-link ${isActive("/blog") ? "active" : ""}`}>Articles</Link></li>
-        <li><Link href="/projects" className={`nav-link ${isActive("/projects") ? "active" : ""}`}>Projects</Link></li>
-        <li><Link href="/" className="nav-link">Contact</Link></li>
+        <li><Link href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>Work</Link></li>
+        <li><Link href="/about" className={`nav-link ${isActive("/about") ? "active" : ""}`}>About</Link></li>
         <li>
           <a
-            href="https://github.com/ss889"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/resume.pdf"
+            className="nav-link"
           >
-            GitHub
+            Resume
           </a>
         </li>
       </ul>

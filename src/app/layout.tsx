@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Saber's Blog — Developer Portfolio",
-  description: "Software developer portfolio and blog",
+  title: "Saber — AI Systems Builder",
+  description: "AI systems builder, MCP developer, and CS student at NJIT",
 };
 
 export default function RootLayout({
@@ -33,6 +33,14 @@ export default function RootLayout({
           {children}
           <ChatLayoutWrapper />
           <footer className="footer">
+            <div style={{ marginBottom: "1rem" }}>
+              <a href="https://github.com/ss889" target="_blank" rel="noopener noreferrer" style={{ marginRight: "2rem" }}>
+                GitHub
+              </a>
+              <a href="https://linkedin.com/in/sadikul-saber" target="_blank" rel="noopener noreferrer">
+                LinkedIn
+              </a>
+            </div>
             Built with Next.js &amp; deployed on GitHub Pages
           </footer>
         </ChatProvider>
