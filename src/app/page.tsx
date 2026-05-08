@@ -15,10 +15,10 @@ const PROJECTS: Project[] = [
   {
     id: "cockpit",
     name: "AI Career Intelligence Cockpit",
-    tags: ["MCP", "Claude API", "Next.js", "TypeScript"],
-    description: "A chat-first operator dashboard for analyzing job descriptions, mapping skill gaps, and surfacing targeted project ideas. Built with Claude claude-sonnet-4-20250514, custom tool calls for structured JD parsing, and a clean operator UI. Designed for AI engineers researching their next role.",
-    githubUrl: "https://github.com/ss889/ai-career-cockpit",
-    liveUrl: "https://ai-career-cockpit.vercel.app",
+    tags: ["Claude API", "Web Search", "Next.js", "TypeScript"],
+    description: "A sidebar-driven operator dashboard with three panels: Analyze (job descriptions with Claude), Search (live job listings via Claude web search), and Tracker (saved jobs with status management). Built with Next.js 16, Anthropic SDK, and localStorage persistence.",
+    githubUrl: "https://github.com/ss889/cockpit",
+    liveUrl: "https://cockpit.vercel.app",
     status: "Live",
   },
   {
