@@ -49,44 +49,100 @@ export default async function Home() {
 
       {/* Projects */}
       <section className="section">
-        <p className="section-label">Projects</p>
-        <div className="projects-grid">
-          <div className="project-card">
-            <h3>Career Intelligence Cockpit</h3>
-            <div className="project-meta">Claude API · Web Search · Next.js 16 · TypeScript · 2025</div>
-            <p className="project-description">Chat interface for analyzing job descriptions, searching live listings with Claude web search, and tracking saved jobs with status management.</p>
-            <div className="project-links">
-              <a href="https://github.com/ss889/cockpit">GitHub</a>
-              <a href="https://cockpit.vercel.app">Live</a>
+        <p className="text-xs font-bold uppercase tracking-widest text-indigo-600 mb-4">Projects</p>
+        <h2 className="text-4xl font-bold text-white mb-2">Featured work</h2>
+        <p className="text-lg text-indigo-400 mb-12">AI systems and tools in production</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Card 1 */}
+          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
+            
+            <div className="flex justify-between items-start mb-6 gap-2">
+              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+                <span>Claude API</span>
+                <span>Web Search</span>
+                <span>Next.js</span>
+                <span>TypeScript</span>
+              </div>
+              <a 
+                href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-900/40 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-800/60 transition-colors"
+              >
+                Live
+              </a>
             </div>
+            
+            <h3 className="text-xl font-bold text-white mb-4">AI Career Intelligence Cockpit</h3>
+            <p className="text-[15px] text-slate-300 leading-relaxed">
+              A sidebar-driven operator dashboard with three panels: Analyze (job descriptions with Claude), Search (live job listings via Claude web search), and Tracker (saved jobs with status management).
+            </p>
           </div>
 
-          <div className="project-card">
-            <h3>Personal Blog Platform</h3>
-            <div className="project-meta">Next.js · React · Markdown · Tailwind · 2025</div>
-            <p className="project-description">Minimal portfolio with blog engine, showcasing AI projects and writing on agentic systems, prompt engineering, and spec-based development.</p>
-            <div className="project-links">
-              <a href="https://github.com/ss889/personal-blog">GitHub</a>
-              <a href="https://ss889.github.io/personal-blog">Live</a>
+          {/* Card 2 */}
+          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
+            
+            <div className="flex justify-between items-start mb-6 gap-2">
+              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+                <span>MCP</span>
+                <span>Claude API</span>
+                <span>TypeScript</span>
+                <span>GitHub Actions</span>
+              </div>
+              <span className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-900/30 text-amber-500 border border-amber-500/30">
+                In Progress
+              </span>
             </div>
+            
+            <h3 className="text-xl font-bold text-white mb-4">Agentic Blog Platform</h3>
+            <p className="text-[15px] text-slate-300 leading-relaxed">
+              A voice and chat-controlled blog editor using Model Context Protocol. Manages content, automates design changes, and deploys to GitHub Pages in approximately 2 minutes from command to live site. Integrates...
+            </p>
           </div>
 
-          <div className="project-card">
-            <h3>Research Assistant Chatbot</h3>
-            <div className="project-meta">Python · LangChain · Groq API · 2024</div>
-            <p className="project-description">Domain-specific research assistant with conversational context, prompt engineering, and multi-turn query handling for technical topics.</p>
-            <div className="project-links">
-              <a href="https://github.com/ss889/research-assistant">GitHub</a>
+          {/* Card 3 */}
+          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
+            
+            <div className="flex justify-between items-start mb-6 gap-2">
+              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+                <span>Python</span>
+                <span>LangChain</span>
+                <span>Groq API</span>
+              </div>
+              <span className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700">
+                Completed
+              </span>
             </div>
+            
+            <h3 className="text-xl font-bold text-white mb-4">Research Assistant Chatbot</h3>
+            <p className="text-[15px] text-slate-300 leading-relaxed">
+              A domain-specific research assistant built on LangChain that maintains conversational context across multi-turn queries. Implements prompt engineering and tool chaining to answer questions about quantum...
+            </p>
           </div>
 
-          <div className="project-card">
-            <h3>AI Funding Data Scraper</h3>
-            <div className="project-meta">Python · SQLite · Docker · 2024</div>
-            <p className="project-description">Automated scraper for startup funding data with deduplication, historical tracking, and Docker deployment for persistent data storage.</p>
-            <div className="project-links">
-              <a href="https://github.com/ss889/ai-funding-scraper">GitHub</a>
+          {/* Card 4 */}
+          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
+            
+            <div className="flex justify-between items-start mb-6 gap-2">
+              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+                <span>Python</span>
+                <span>SQLite</span>
+                <span>Docker</span>
+              </div>
+              <span className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-900/30 text-amber-500 border border-amber-500/30">
+                In Progress
+              </span>
             </div>
+            
+            <h3 className="text-xl font-bold text-white mb-4">AI Funding Data Scraper</h3>
+            <p className="text-[15px] text-slate-300 leading-relaxed">
+              Automated scraper that extracts structured startup funding data from AlleyWatch — company, amount, investors, dates — into a persistent SQLite store with deduplication, historical tracking, and Docker deployment.
+            </p>
           </div>
         </div>
       </section>
