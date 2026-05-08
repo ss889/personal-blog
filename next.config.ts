@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   output: "export",
   basePath: isProd ? "/personal-blog" : "",
   assetPrefix: isProd ? "/personal-blog/" : "",
+  distDir: "docs",
   reactCompiler: true,
   images: {
     unoptimized: true,
