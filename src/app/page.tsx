@@ -7,7 +7,7 @@ export default async function Home() {
   return (
     <main>
       {/* Hero */}
-      <section className="hero">
+      <section id="hero" className="hero">
         <h1>I build AI systems that do real work</h1>
         <p>Agentic pipelines, operator interfaces, and tooling for the way professionals use AI.</p>
       </section>
@@ -15,7 +15,7 @@ export default async function Home() {
       <hr />
 
       {/* Experience */}
-      <section className="section">
+      <section id="experience" className="section">
         <p className="section-label">0 // Experience</p>
         
         <div className="timeline">
@@ -48,7 +48,7 @@ export default async function Home() {
       <hr />
 
       {/* Projects */}
-      <section className="section">
+      <section id="projects" className="section">
         <p className="section-label">0 // Projects</p>
         <h2 className="section-title">Featured work</h2>
 
@@ -139,7 +139,7 @@ export default async function Home() {
       <hr />
 
       {/* Skills */}
-      <section className="section">
+      <section id="skills" className="section">
         <p className="section-label">0 // Skills</p>
         <div className="skills-container">
           <div className="skill-category">
@@ -172,7 +172,7 @@ export default async function Home() {
       <hr />
 
       {/* About */}
-      <section className="section">
+      <section id="about" className="section">
         <p className="section-label">0 // About</p>
         <div className="about-content">
           <p>

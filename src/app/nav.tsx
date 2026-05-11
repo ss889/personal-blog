@@ -1,31 +1,29 @@
 'use client';
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Navigation() {
-  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  const isActive = (href: string) => {
-    if (href === "/" && pathname === "/") return true;
-    if (href !== "/" && pathname.startsWith(href)) return true;
-    return false;
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="nav">
+    <nav className={`nav ${isScrolled ? "nav-scrolled" : ""}`}>
       <Link href="/" className="nav-brand">Saber</Link>
       <ul className="nav-links">
-        <li><Link href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>Work</Link></li>
-        <li><Link href="/about" className={`nav-link ${isActive("/about") ? "active" : ""}`}>About</Link></li>
-        <li>
-          <a
-            href="/resume.pdf"
-            className="nav-link"
-          >
-            Resume
-          </a>
-        </li>
+        <li><a href="#hero" className="nav-link">// home</a></li>
+        <li><a href="#experience" className="nav-link">// experience</a></li>
+        <li><a href="#projects" className="nav-link">// work</a></li>
+        <li><a href="#skills" className="nav-link">// skills</a></li>
+        <li><a href="#about" className="nav-link">// about</a></li>
       </ul>
     </nav>
   );

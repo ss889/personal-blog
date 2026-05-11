@@ -28,13 +28,24 @@ a:hover {
 
 /* Navigation */
 .nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  max-width: 1000px;
+  padding: 2rem;
+  max-width: 100%;
   margin: 0 auto;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 20, 25, 0.8);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.nav.nav-scrolled {
+  padding: 1rem 2rem;
+  background: rgba(15, 20, 25, 0.95);
 }
 
 .nav-brand {
@@ -42,26 +53,49 @@ a:hover {
   font-size: 1rem;
   text-decoration: none;
   letter-spacing: 0.05em;
+  color: #e4e6eb;
+  transition: all 0.3s ease;
+}
+
+.nav-scrolled .nav-brand {
+  font-size: 0.95rem;
 }
 
 .nav-links {
   display: flex;
   list-style: none;
+  gap: 2.5rem;
+  font-size: 0.85rem;
+}
+
+.nav-scrolled .nav-links {
   gap: 2rem;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .nav-link {
   text-decoration: none;
   color: #9ca3af;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  color: #e4e6eb;
-  text-decoration: underline;
+.nav-link:hover {
+  color: #5eead4;
+}
+
+.nav-scrolled .nav-link {
+  color: #9ca3af;
+}
+
+.nav-scrolled .nav-link:hover {
+  color: #5eead4;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
 }
 
 /* Layout */
