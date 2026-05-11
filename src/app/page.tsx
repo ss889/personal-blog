@@ -56,7 +56,7 @@ export default async function Home() {
           {/* Card 1 */}
           <div className="project-card">
             <div className="flex justify-between items-start mb-3 gap-2">
-              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
                 <span>Claude API</span>
                 <span>Web Search</span>
                 <span>Next.js</span>
@@ -65,7 +65,7 @@ export default async function Home() {
                 href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-xs text-gray-400 hover:text-white transition-colors"
+                className="text-xs card-meta hover-link transition-colors"
               >
                 View →
               </a>
@@ -80,12 +80,12 @@ export default async function Home() {
           {/* Card 2 */}
           <div className="project-card">
             <div className="flex justify-between items-start mb-3 gap-2">
-              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
                 <span>MCP</span>
                 <span>Claude API</span>
                 <span>TypeScript</span>
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs card-meta">
                 In Progress
               </span>
             </div>
@@ -99,12 +99,12 @@ export default async function Home() {
           {/* Card 3 */}
           <div className="project-card">
             <div className="flex justify-between items-start mb-3 gap-2">
-              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
                 <span>Python</span>
                 <span>LangChain</span>
                 <span>Groq API</span>
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs card-meta">
                 Completed
               </span>
             </div>
@@ -118,12 +118,12 @@ export default async function Home() {
           {/* Card 4 */}
           <div className="project-card">
             <div className="flex justify-between items-start mb-3 gap-2">
-              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
                 <span>Python</span>
                 <span>SQLite</span>
                 <span>Docker</span>
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs card-meta">
                 In Progress
               </span>
             </div>

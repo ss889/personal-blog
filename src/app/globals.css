@@ -168,6 +168,18 @@ main {
   transform: none;
 }
 
+.card-meta {
+  color: #9ca3af;
+}
+
+.hover-link {
+  color: #9ca3af;
+}
+
+.hover-link:hover {
+  color: #e4e6eb;
+}
+
 .project-card-title {
   font-size: 1rem;
   margin-bottom: 0.75rem;
