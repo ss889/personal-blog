@@ -16,7 +16,7 @@ export default async function Home() {
 
       {/* Experience */}
       <section className="section">
-        <p className="section-label">Experience</p>
+        <p className="section-label">0 // Experience</p>
         
         <div className="timeline">
           <div className="timeline-year">2026</div>
@@ -49,99 +49,88 @@ export default async function Home() {
 
       {/* Projects */}
       <section className="section">
-        <p className="text-xs font-bold uppercase tracking-widest text-indigo-600 mb-4">Projects</p>
-        <h2 className="text-4xl font-bold text-white mb-2">Featured work</h2>
-        <p className="text-lg text-indigo-400 mb-12">AI systems and tools in production</p>
+        <p className="section-label">0 // Projects</p>
+        <h2 className="section-title">Featured work</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="projects-grid">
           {/* Card 1 */}
-          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
-            
-            <div className="flex justify-between items-start mb-6 gap-2">
-              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+          <div className="project-card">
+            <div className="flex justify-between items-start mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
                 <span>Claude API</span>
                 <span>Web Search</span>
                 <span>Next.js</span>
-                <span>TypeScript</span>
               </div>
               <a 
                 href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-900/40 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-800/60 transition-colors"
+                className="text-xs text-gray-400 hover:text-white transition-colors"
               >
-                Live
+                View →
               </a>
             </div>
             
-            <h3 className="text-xl font-bold text-white mb-4">AI Career Intelligence Cockpit</h3>
-            <p className="text-[15px] text-slate-300 leading-relaxed">
-              A sidebar-driven operator dashboard with three panels: Analyze (job descriptions with Claude), Search (live job listings via Claude web search), and Tracker (saved jobs with status management).
+            <h3 className="project-card-title">AI Career Intelligence Cockpit</h3>
+            <p className="project-description">
+              A sidebar-driven operator dashboard with three panels: Analyze job descriptions with Claude, Search live job listings via web search, and Track saved jobs with status management.
             </p>
           </div>
 
           {/* Card 2 */}
-          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
-            
-            <div className="flex justify-between items-start mb-6 gap-2">
-              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+          <div className="project-card">
+            <div className="flex justify-between items-start mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
                 <span>MCP</span>
                 <span>Claude API</span>
                 <span>TypeScript</span>
-                <span>GitHub Actions</span>
               </div>
-              <span className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-900/30 text-amber-500 border border-amber-500/30">
+              <span className="text-xs text-gray-400">
                 In Progress
               </span>
             </div>
             
-            <h3 className="text-xl font-bold text-white mb-4">Agentic Blog Platform</h3>
-            <p className="text-[15px] text-slate-300 leading-relaxed">
-              A voice and chat-controlled blog editor using Model Context Protocol. Manages content, automates design changes, and deploys to GitHub Pages in approximately 2 minutes from command to live site. Integrates...
+            <h3 className="project-card-title">Agentic Blog Platform</h3>
+            <p className="project-description">
+              A voice and chat-controlled blog editor using Model Context Protocol. Manages content, automates design changes, and deploys to GitHub Pages in approximately 2 minutes from command to live site.
             </p>
           </div>
 
           {/* Card 3 */}
-          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
-            
-            <div className="flex justify-between items-start mb-6 gap-2">
-              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+          <div className="project-card">
+            <div className="flex justify-between items-start mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
                 <span>Python</span>
                 <span>LangChain</span>
                 <span>Groq API</span>
               </div>
-              <span className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700">
+              <span className="text-xs text-gray-400">
                 Completed
               </span>
             </div>
             
-            <h3 className="text-xl font-bold text-white mb-4">Research Assistant Chatbot</h3>
-            <p className="text-[15px] text-slate-300 leading-relaxed">
-              A domain-specific research assistant built on LangChain that maintains conversational context across multi-turn queries. Implements prompt engineering and tool chaining to answer questions about quantum...
+            <h3 className="project-card-title">Research Assistant Chatbot</h3>
+            <p className="project-description">
+              A domain-specific research assistant built on LangChain that maintains conversational context across multi-turn queries with prompt engineering and tool chaining.
             </p>
           </div>
 
           {/* Card 4 */}
-          <div className="group relative rounded-xl border border-slate-800 bg-slate-900/40 p-6 transition-all hover:bg-slate-800/40 overflow-hidden flex flex-col">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-400 to-cyan-500 opacity-80"></div>
-            
-            <div className="flex justify-between items-start mb-6 gap-2">
-              <div className="flex flex-wrap gap-x-3 gap-y-2 text-xs font-bold text-emerald-400">
+          <div className="project-card">
+            <div className="flex justify-between items-start mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
                 <span>Python</span>
                 <span>SQLite</span>
                 <span>Docker</span>
               </div>
-              <span className="shrink-0 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-900/30 text-amber-500 border border-amber-500/30">
+              <span className="text-xs text-gray-400">
                 In Progress
               </span>
             </div>
             
-            <h3 className="text-xl font-bold text-white mb-4">AI Funding Data Scraper</h3>
-            <p className="text-[15px] text-slate-300 leading-relaxed">
-              Automated scraper that extracts structured startup funding data from AlleyWatch — company, amount, investors, dates — into a persistent SQLite store with deduplication, historical tracking, and Docker deployment.
+            <h3 className="project-card-title">AI Funding Data Scraper</h3>
+            <p className="project-description">
+              Automated scraper that extracts structured startup funding data from AlleyWatch with deduplication, historical tracking, and Docker deployment for persistent storage.
             </p>
           </div>
         </div>
@@ -151,7 +140,7 @@ export default async function Home() {
 
       {/* Skills */}
       <section className="section">
-        <p className="section-label">Skills</p>
+        <p className="section-label">0 // Skills</p>
         <div className="skills-container">
           <div className="skill-category">
             <h3>AI & Agentic Systems</h3>
@@ -184,7 +173,7 @@ export default async function Home() {
 
       {/* About */}
       <section className="section">
-        <p className="section-label">About</p>
+        <p className="section-label">0 // About</p>
         <div className="about-content">
           <p>
             I fell in love with web development in my Information Systems classes at NJIT. I still remember being proud of the first site I ever built — but I always had more ideas than I could execute. Debugging took time. Getting things to look right took time.

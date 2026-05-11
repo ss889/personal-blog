@@ -12,8 +12,8 @@ html {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
-  background: #09090b;
-  color: #fafafa;
+  background: #0f1419;
+  color: #e4e6eb;
   line-height: 1.6;
 }
 
@@ -53,14 +53,14 @@ a:hover {
 
 .nav-link {
   text-decoration: none;
-  color: #a1a1aa;
+  color: #9ca3af;
   font-weight: 500;
   transition: color 0.2s;
 }
 
 .nav-link:hover,
 .nav-link.active {
-  color: #fafafa;
+  color: #e4e6eb;
   text-decoration: underline;
 }
 
@@ -73,22 +73,25 @@ main {
 
 /* Hero */
 .hero {
-  padding: 3rem 0;
-  margin-bottom: 2rem;
+  padding: 4rem 0;
+  margin-bottom: 3rem;
 }
 
 .hero h1 {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
+  color: #e4e6eb;
 }
 
 .hero p {
-  font-size: 1rem;
-  color: #a1a1aa;
+  font-size: 1.05rem;
+  color: #9ca3af;
   margin: 0.5rem 0;
+  max-width: 600px;
+  line-height: 1.6;
 }
 
 /* Sections */
@@ -101,15 +104,16 @@ main {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #5eead4;
-  margin-bottom: 1rem;
+  color: #9ca3af;
+  margin-bottom: 1.5rem;
 }
 
 .section-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
   letter-spacing: -0.01em;
+  color: #e4e6eb;
 }
 
 /* Experience / Timeline */
@@ -140,48 +144,41 @@ main {
 
 .timeline-company {
   font-size: 0.9rem;
-  color: #a1a1aa;
+  color: #9ca3af;
 }
 
 /* Projects */
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
 }
 
 .project-card {
-  padding: 1.5rem;
+  padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.02);
-  transition: all 0.2s;
+  border-radius: 0;
+  background: transparent;
+  transition: all 0.3s ease;
 }
 
 .project-card:hover {
-  border-color: rgba(94, 234, 212, 0.4);
-  background: rgba(94, 234, 212, 0.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  transform: none;
 }
 
-.project-card h3 {
+.project-card-title {
   font-size: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #fafafa;
-}
-
-.project-meta {
-  font-size: 0.8rem;
-  color: #5eead4;
-  margin-bottom: 1rem;
+  color: #e4e6eb;
 }
 
 .project-description {
   font-size: 0.9rem;
-  color: #a1a1aa;
-  margin-bottom: 1.25rem;
+  color: #9ca3af;
+  margin-bottom: 0;
   line-height: 1.5;
 }
 
@@ -193,7 +190,7 @@ main {
 }
 
 .project-links a {
-  color: #fafafa;
+  color: #e4e6eb;
   text-decoration: underline;
 }
 
@@ -218,13 +215,19 @@ main {
 
 .skill-tag {
   display: inline-block;
-  padding: 0.4rem 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
+  padding: 0.35rem 0.75rem;
+  background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   font-size: 0.85rem;
-  color: #e4e4e7;
+  color: #9ca3af;
   font-weight: 500;
+  transition: all 0.2s;
+}
+
+.skill-tag:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e4e6eb;
 }
 
 /* About Content */
@@ -233,7 +236,7 @@ main {
   flex-direction: column;
   gap: 1.5rem;
   font-size: 0.95rem;
-  color: #a1a1aa;
+  color: #9ca3af;
   line-height: 1.7;
 }
 
@@ -243,29 +246,11 @@ main {
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.85rem;
-  color: #71717a;
-}
-
-.footer-links {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.footer-links a {
   color: #a1a1aa;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.footer-links a:hover {
-  color: #fafafa;
-  text-decoration: underline;
 }
 
 .footer-credit {
-  color: #52525b;
+  color: #6b7280;
   font-size: 0.8rem;
 }
 
