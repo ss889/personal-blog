@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -296,19 +317,57 @@ main {
 .expertise-card {
   padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: transparent;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.expertise-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.expertise-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.expertise-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.expertise-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(94, 234, 212, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .expertise-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(94, 234, 212, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
+              inset 0 1px 0 rgba(94, 234, 212, 0.2),
+              0 0 20px rgba(94, 234, 212, 0.1);
+  transform: translateY(-8px);
+  animation: subtleFloat 3s ease-in-out infinite;
+}
+
+.expertise-card:hover::before {
+  opacity: 1;
 }
 
 .expertise-icon {
   font-size: 3rem;
   margin-bottom: 1.5rem;
   color: #e4e6eb;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
 .expertise-icon svg {
@@ -316,6 +375,13 @@ main {
   height: 50px;
   stroke: currentColor;
   fill: none;
+  filter: drop-shadow(0 0 10px rgba(94, 234, 212, 0));
+  transition: filter 0.4s ease;
+}
+
+.expertise-card:hover .expertise-icon svg {
+  filter: drop-shadow(0 0 15px rgba(94, 234, 212, 0.3));
+  transform: scale(1.1) translateY(-5px);
 }
 
 .expertise-card-title {
@@ -324,12 +390,18 @@ main {
   margin-bottom: 1rem;
   color: #e4e6eb;
   line-height: 1.4;
+  transition: all 0.4s ease;
+}
+
+.expertise-card:hover .expertise-card-title {
+  color: #5eead4;
 }
 
 .expertise-highlight {
   font-weight: 700;
   padding-bottom: 0.2rem;
   border-bottom: 3px solid;
+  transition: all 0.4s ease;
 }
 
 .expertise-highlight.magenta {
@@ -347,11 +419,21 @@ main {
   border-bottom-color: #f59e0b;
 }
 
+.expertise-card:hover .expertise-highlight {
+  color: #5eead4;
+  border-bottom-color: #5eead4;
+}
+
 .expertise-description {
   font-size: 0.9rem;
   color: #9ca3af;
   line-height: 1.6;
   margin: 0;
+  transition: color 0.4s ease;
+}
+
+.expertise-card:hover .expertise-description {
+  color: #bfdbfe;
 }
 
 /* About Content */
