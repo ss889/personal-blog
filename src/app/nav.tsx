@@ -20,9 +20,8 @@ export default function Navigation() {
       <Link href="/" className="nav-brand">Saber</Link>
       <ul className="nav-links">
         <li><a href="#hero" className="nav-link">// home</a></li>
-        <li><a href="#experience" className="nav-link">// experience</a></li>
-        <li><a href="#projects" className="nav-link">// work</a></li>
-        <li><a href="#skills" className="nav-link">// skills</a></li>
+        <li><a href="#skills" className="nav-link">// expertise</a></li>
+        <li><a href="#projects" className="nav-link">// experience</a></li>
         <li><a href="#about" className="nav-link">// about</a></li>
       </ul>
     </nav>

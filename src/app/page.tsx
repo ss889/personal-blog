@@ -14,33 +14,58 @@ export default async function Home() {
 
       <hr />
 
-      {/* Experience */}
-      <section id="experience" className="section">
-        <p className="section-label">0 // Experience</p>
+      {/* Skills / Expertise */}
+      <section id="skills" className="section">
+        <h2 className="expertise-title">My Expertise</h2>
         
-        <div className="timeline">
-          <div className="timeline-year">2026</div>
-          <div className="timeline-item">
-            <div className="timeline-role">AI Engineer (Open to opportunities)</div>
-            <div className="timeline-company">NJIT · CS Student</div>
+        <div className="expertise-grid">
+          {/* Card 1 */}
+          <div className="expertise-card">
+            <div className="expertise-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                <line x1="7" y1="9" x2="27" y2="9"></line>
+                <path d="M5,24H27a4,4,0,0,1,4,4V40a4,4,0,0,1-4,4H5a4,4,0,0,1-4-4V28A4,4,0,0,1,5,24Z"></path>
+              </svg>
+            </div>
+            <h3 className="expertise-card-title">
+              <span className="expertise-highlight magenta">Software</span><br/>Development
+            </h3>
+            <p className="expertise-description">
+              Experienced in both functional and OOP: Dart, Python, Java, JavaScript, TypeScript.
+            </p>
           </div>
 
-          <div className="timeline-year">2025</div>
-          <div className="timeline-item">
-            <div className="timeline-role">Built: Career Intelligence Cockpit</div>
-            <div className="timeline-company">Claude API, Web Search, Next.js</div>
+          {/* Card 2 */}
+          <div className="expertise-card">
+            <div className="expertise-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="44.964" viewBox="0 0 40 44.964" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="20" cy="22.5" r="6"></circle>
+                <path d="M20,2a20.5,20.5,0,0,1,0,41M2,22.5H40M9,9l7.79,7.79M31,9l-7.79,7.79M9,36l7.79-7.79M31,36l-7.79-7.79"></path>
+              </svg>
+            </div>
+            <h3 className="expertise-card-title">
+              <span className="expertise-highlight blue">Frontend Dev</span><br/>React, Next.js
+            </h3>
+            <p className="expertise-description">
+              Passionate about UI/UX. Over 5 years of development experience in HTML, CSS, JS, React and Next.js frameworks.
+            </p>
           </div>
 
-          <div className="timeline-year">2024</div>
-          <div className="timeline-item">
-            <div className="timeline-role">Built: AI Blog Platform</div>
-            <div className="timeline-company">Model Context Protocol, Claude</div>
-          </div>
-
-          <div className="timeline-year">2023</div>
-          <div className="timeline-item">
-            <div className="timeline-role">Started: AI Systems Learning</div>
-            <div className="timeline-company">LangChain, Groq, Agentic Workflows</div>
+          {/* Card 3 */}
+          <div className="expertise-card">
+            <div className="expertise-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="38" height="46.769" viewBox="0 0 38 46.769" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8,32L24,16M24,16l12-12m0,0H24m12,0V16"></path>
+                <path d="M30,30l-6,6m-18-6l18-18"></path>
+              </svg>
+            </div>
+            <h3 className="expertise-card-title">
+              <span className="expertise-highlight yellow">AI & Agentic</span><br/>Systems
+            </h3>
+            <p className="expertise-description">
+              Skilled in building AI systems, agentic workflows, prompt engineering, and spec-based development using Claude and LangChain.
+            </p>
           </div>
         </div>
       </section>
@@ -132,39 +157,6 @@ export default async function Home() {
             <p className="project-description">
               Automated scraper that extracts structured startup funding data from AlleyWatch with deduplication, historical tracking, and Docker deployment for persistent storage.
             </p>
-          </div>
-        </div>
-      </section>
-
-      <hr />
-
-      {/* Skills */}
-      <section id="skills" className="section">
-        <p className="section-label">0 // Skills</p>
-        <div className="skills-container">
-          <div className="skill-category">
-            <h3>AI & Agentic Systems</h3>
-            <div className="skill-tags">
-              <span className="skill-tag">Claude API</span>
-              <span className="skill-tag">Agentic Workflows</span>
-              <span className="skill-tag">Web Search</span>
-              <span className="skill-tag">Prompt Engineering</span>
-              <span className="skill-tag">LangChain</span>
-              <span className="skill-tag">Spec-Based Dev</span>
-            </div>
-          </div>
-
-          <div className="skill-category">
-            <h3>Development & Tooling</h3>
-            <div className="skill-tags">
-              <span className="skill-tag">TypeScript</span>
-              <span className="skill-tag">Python</span>
-              <span className="skill-tag">Next.js 16</span>
-              <span className="skill-tag">React</span>
-              <span className="skill-tag">Docker</span>
-              <span className="skill-tag">GitHub Actions</span>
-              <span className="skill-tag">Tailwind CSS</span>
-            </div>
           </div>
         </div>
       </section>

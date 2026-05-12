@@ -276,6 +276,84 @@ main {
   color: #e4e6eb;
 }
 
+/* Expertise Section */
+.expertise-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #e4e6eb;
+  letter-spacing: -0.01em;
+}
+
+.expertise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.expertise-card {
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.expertise-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.expertise-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  color: #e4e6eb;
+}
+
+.expertise-icon svg {
+  width: 50px;
+  height: 50px;
+  stroke: currentColor;
+  fill: none;
+}
+
+.expertise-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #e4e6eb;
+  line-height: 1.4;
+}
+
+.expertise-highlight {
+  font-weight: 700;
+  padding-bottom: 0.2rem;
+  border-bottom: 3px solid;
+}
+
+.expertise-highlight.magenta {
+  color: #ec4899;
+  border-bottom-color: #ec4899;
+}
+
+.expertise-highlight.blue {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.expertise-highlight.yellow {
+  color: #f59e0b;
+  border-bottom-color: #f59e0b;
+}
+
+.expertise-description {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  line-height: 1.6;
+  margin: 0;
+}
+
 /* About Content */
 .about-content {
   display: flex;
