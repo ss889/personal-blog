@@ -48,7 +48,7 @@ export default async function Home() {
               <span className="expertise-highlight blue">Frontend Dev</span><br/>React, Next.js
             </h3>
             <p className="expertise-description">
-              Passionate about UI/UX. Over 5 years of development experience in HTML, CSS, JS, React and Next.js frameworks.
+              Passionate about UI/UX. Expert in HTML, CSS, JS, React and Next.js frameworks.
             </p>
           </div>
 
