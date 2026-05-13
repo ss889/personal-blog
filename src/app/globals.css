@@ -58,9 +58,9 @@ a:hover {
   padding: 2rem;
   max-width: 100%;
   margin: 0 auto;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(15, 20, 25, 0.8);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 20, 25, 0.95);
+  backdrop-filter: none;
   transition: all 0.3s ease;
 }
 
@@ -123,51 +123,61 @@ html {
 main {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
 }
 
 /* Hero */
 .hero {
-  padding: 4rem 0;
-  margin-bottom: 3rem;
+  padding: 6rem 0 5rem 0;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hero h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.03em;
   color: #e4e6eb;
 }
 
 .hero p {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: #9ca3af;
   margin: 0.5rem 0;
-  max-width: 600px;
-  line-height: 1.6;
+  max-width: 650px;
+  line-height: 1.7;
+  font-weight: 400;
 }
 
 /* Sections */
 .section {
-  margin: 3rem 0;
+  margin: 5rem 0;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section:first-of-type {
+  border-top: none;
+  padding-top: 0;
 }
 
 .section-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: #9ca3af;
-  margin-bottom: 1.5rem;
+  letter-spacing: 0.2em;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  display: block;
 }
 
 .section-title {
-  font-size: 1.4rem;
+  font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.01em;
+  margin-bottom: 3rem;
+  letter-spacing: -0.02em;
   color: #e4e6eb;
 }
 
@@ -206,18 +216,17 @@ main {
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
 .project-card {
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  background: transparent;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
@@ -228,13 +237,8 @@ main {
 }
 
 .project-card-link:hover {
-  border-color: rgba(94, 234, 212, 0.5);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
-              inset 0 1px 0 rgba(94, 234, 212, 0.2),
-              0 0 20px rgba(94, 234, 212, 0.1);
-  transform: translateY(-8px);
-  animation: subtleFloat 3s ease-in-out infinite;
+  border-color: rgba(94, 234, 212, 0.4);
+  background: rgba(94, 234, 212, 0.02);
 }
 
 .project-card-link:hover::before {
@@ -284,8 +288,12 @@ main {
 }
 
 .card-meta {
-  color: #9ca3af;
-  transition: color 0.4s ease;
+  color: #6b7280;
+  transition: color 0.3s ease;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .project-card:hover .card-meta {
@@ -302,11 +310,12 @@ main {
 }
 
 .project-card-title {
-  font-size: 1.125rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
   font-weight: 600;
   color: #e4e6eb;
-  transition: all 0.4s ease;
+  transition: color 0.3s ease;
+  letter-spacing: -0.01em;
 }
 
 .project-card:hover .project-card-title {
@@ -317,8 +326,9 @@ main {
   font-size: 1rem;
   color: #9ca3af;
   margin-bottom: 0;
-  line-height: 1.5;
-  transition: color 0.4s ease;
+  line-height: 1.6;
+  transition: color 0.3s ease;
+  font-weight: 400;
 }
 
 .project-card:hover .project-description {
@@ -391,13 +401,12 @@ main {
 }
 
 .expertise-card {
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
@@ -420,19 +429,14 @@ main {
   right: -50%;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(94, 234, 212, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(94, 234, 212, 0.08) 0%, transparent 70%);
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 
 .expertise-card:hover {
-  border-color: rgba(94, 234, 212, 0.5);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
-              inset 0 1px 0 rgba(94, 234, 212, 0.2),
-              0 0 20px rgba(94, 234, 212, 0.1);
-  transform: translateY(-8px);
-  animation: subtleFloat 3s ease-in-out infinite;
+  border-color: rgba(94, 234, 212, 0.3);
+  background: rgba(94, 234, 212, 0.02);
 }
 
 .expertise-card:hover::before {
@@ -461,12 +465,13 @@ main {
 }
 
 .expertise-card-title {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   color: #e4e6eb;
-  line-height: 1.4;
-  transition: all 0.4s ease;
+  line-height: 1.35;
+  transition: color 0.3s ease;
+  letter-spacing: -0.01em;
 }
 
 .expertise-card:hover .expertise-card-title {
@@ -475,9 +480,9 @@ main {
 
 .expertise-highlight {
   font-weight: 700;
-  padding-bottom: 0.2rem;
-  border-bottom: 3px solid;
-  transition: all 0.4s ease;
+  padding-bottom: 0.15rem;
+  border-bottom: 2px solid;
+  transition: color 0.3s ease;
 }
 
 .expertise-highlight.magenta {
@@ -501,11 +506,12 @@ main {
 }
 
 .expertise-description {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #9ca3af;
+  margin-bottom: 0;
   line-height: 1.6;
-  margin: 0;
-  transition: color 0.4s ease;
+  transition: color 0.3s ease;
+  font-weight: 400;
 }
 
 .expertise-card:hover .expertise-description {
@@ -516,26 +522,27 @@ main {
 .about-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  font-size: 1.05rem;
+  gap: 2rem;
+  font-size: 1.1rem;
   color: #9ca3af;
-  line-height: 1.7;
+  line-height: 1.8;
+  font-weight: 400;
 }
 
 /* Footer */
 .footer {
-  margin-top: 4rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2.5rem;
 }
 
 .footer-icons {
   display: flex;
-  gap: 2rem;
+  gap: 2.5rem;
   align-items: center;
   justify-content: center;
 }
@@ -544,32 +551,34 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: #9ca3af;
+  width: 44px;
+  height: 44px;
+  color: #6b7280;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  padding: 8px;
+  padding: 10px;
 }
 
 .footer-icon:hover {
   color: #5eead4;
-  border-color: rgba(94, 234, 212, 0.5);
-  box-shadow: 0 0 20px rgba(94, 234, 212, 0.1);
+  border-color: rgba(94, 234, 212, 0.3);
+  background: rgba(94, 234, 212, 0.05);
 }
 
 .footer-credit {
   color: #6b7280;
   font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  font-weight: 400;
 }
 
 /* Divider */
 hr {
   border: none;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  margin: 2rem 0;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0;
 }
 
 /* Responsive */
