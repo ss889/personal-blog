@@ -16,7 +16,7 @@ export default async function Home() {
 
       {/* Skills / Expertise */}
       <section id="skills" className="section">
-        <h2 className="expertise-title">My Expertise</h2>
+        <h2 className="expertise-title">My Skills</h2>
         
         <div className="expertise-grid">
           {/* Card 1 */}
@@ -79,28 +79,28 @@ export default async function Home() {
 
         <div className="projects-grid">
           {/* Card 1 */}
-          <div className="project-card">
+          <a
+            href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="project-card project-card-link"
+          >
             <div className="flex justify-between items-start mb-3 gap-2">
               <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
                 <span>Claude API</span>
                 <span>Web Search</span>
                 <span>Next.js</span>
               </div>
-              <a 
-                href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-xs card-meta hover-link transition-colors"
-              >
+              <span className="text-xs card-meta hover-link transition-colors">
                 View →
-              </a>
+              </span>
             </div>
             
             <h3 className="project-card-title">AI Career Intelligence Cockpit</h3>
             <p className="project-description">
               A sidebar-driven operator dashboard with three panels: Analyze job descriptions with Claude, Search live job listings via web search, and Track saved jobs with status management.
             </p>
-          </div>
+          </a>
 
           {/* Card 2 */}
           <div className="project-card">
