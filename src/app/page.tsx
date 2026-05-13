@@ -15,12 +15,12 @@ export default async function Home() {
       <hr />
 
       {/* Skills / Expertise */}
-      <section id="skills" className="section">
+      <section id="skills" className="section scroll-animate">
         <h2 className="expertise-title">My Skills</h2>
         
         <div className="expertise-grid">
           {/* Card 1 */}
-          <div className="expertise-card">
+          <div className="expertise-card scroll-animate">
             <div className="expertise-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="3" width="20" height="20" rx="2.18" ry="2.18"></rect>
@@ -37,7 +37,7 @@ export default async function Home() {
           </div>
 
           {/* Card 2 */}
-          <div className="expertise-card">
+          <div className="expertise-card scroll-animate">
             <div className="expertise-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="44.964" viewBox="0 0 40 44.964" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="20" cy="22.5" r="6"></circle>
@@ -53,7 +53,7 @@ export default async function Home() {
           </div>
 
           {/* Card 3 */}
-          <div className="expertise-card">
+          <div className="expertise-card scroll-animate">
             <div className="expertise-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="38" height="46.769" viewBox="0 0 38 46.769" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8,32L24,16M24,16l12-12m0,0H24m12,0V16"></path>
@@ -73,7 +73,7 @@ export default async function Home() {
       <hr />
 
       {/* Projects */}
-      <section id="projects" className="section">
+      <section id="projects" className="section scroll-animate">
         <p className="section-label">0 // Projects</p>
         <h2 className="section-title">Featured work</h2>
 
@@ -83,7 +83,7 @@ export default async function Home() {
             href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="project-card project-card-link"
+            className="project-card project-card-link scroll-animate"
           >
             <div className="flex justify-between items-start mb-3 gap-2">
               <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
@@ -103,7 +103,7 @@ export default async function Home() {
           </a>
 
           {/* Card 2 */}
-          <div className="project-card">
+          <div className="project-card scroll-animate">
             <div className="flex justify-between items-start mb-3 gap-2">
               <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
                 <span>MCP</span>
@@ -126,7 +126,7 @@ export default async function Home() {
             href="https://company-jjvx.onrender.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="project-card project-card-link"
+            className="project-card project-card-link scroll-animate"
           >
             <div className="flex justify-between items-start mb-3 gap-2">
               <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
@@ -146,7 +146,7 @@ export default async function Home() {
           </a>
 
           {/* Card 4 */}
-          <div className="project-card">
+          <div className="project-card scroll-animate">
             <div className="flex justify-between items-start mb-3 gap-2">
               <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
                 <span>Python</span>
@@ -169,7 +169,7 @@ export default async function Home() {
       <hr />
 
       {/* About */}
-      <section id="about" className="section">
+      <section id="about" className="section scroll-animate">
         <p className="section-label">0 // About</p>
         <div className="about-content">
           <p>

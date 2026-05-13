@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navigation from "./nav";
 import { ChatProvider } from "@/lib/ChatContext";
 import ChatLayoutWrapper from "./ChatLayoutWrapper";
+import ScrollAnimationProvider from "./ScrollAnimationProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ChatProvider>
           <Navigation />
-          {children}
+          <ScrollAnimationProvider>
+            {children}
+          </ScrollAnimationProvider>
           <ChatLayoutWrapper />
           <footer className="footer">
             <div style={{ marginBottom: "1rem" }}>
