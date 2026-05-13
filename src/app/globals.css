@@ -302,7 +302,7 @@ main {
 }
 
 .project-card-title {
-  font-size: 1rem;
+  font-size: 1.125rem;
   margin-bottom: 0.75rem;
   font-weight: 600;
   color: #e4e6eb;
@@ -314,7 +314,7 @@ main {
 }
 
 .project-description {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #9ca3af;
   margin-bottom: 0;
   line-height: 1.5;
@@ -517,7 +517,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: #9ca3af;
   line-height: 1.7;
 }
