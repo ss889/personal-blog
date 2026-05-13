@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import Navigation from "./nav";
 import { ChatProvider } from "@/lib/ChatContext";
 import ChatLayoutWrapper from "./ChatLayoutWrapper";
@@ -21,6 +22,18 @@ export const metadata: Metadata = {
   description: "AI systems builder, MCP developer, and CS student at NJIT",
 };
 
+const themeInitScript = `
+(function() {
+  try {
+    var saved = localStorage.getItem('portfolio-theme') || 'theme-night';
+    document.documentElement.classList.remove('theme-night', 'theme-ink', 'theme-terminal');
+    document.documentElement.classList.add(saved);
+  } catch (e) {
+    document.documentElement.classList.add('theme-night');
+  }
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +41,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ChatProvider>
           <Navigation />
@@ -35,17 +53,6 @@ export default function RootLayout({
             {children}
           </ScrollAnimationProvider>
           <ChatLayoutWrapper />
-          <footer className="footer">
-            <div style={{ marginBottom: "1rem" }}>
-              <a href="https://github.com/ss889" target="_blank" rel="noopener noreferrer" style={{ marginRight: "2rem" }}>
-                GitHub
-              </a>
-              <a href="https://linkedin.com/in/sadikul-saber" target="_blank" rel="noopener noreferrer">
-                LinkedIn
-              </a>
-            </div>
-            Built with Next.js &amp; deployed on GitHub Pages
-          </footer>
         </ChatProvider>
       </body>
     </html>
