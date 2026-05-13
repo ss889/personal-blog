@@ -8,8 +8,8 @@ export default async function Home() {
     <main>
       {/* Hero */}
       <section id="hero" className="hero">
-        <h1>I build AI systems that do real work</h1>
-        <p>Agentic pipelines, operator interfaces, and tooling for the way professionals use AI.</p>
+        <h1>I build AI systems that give people back their time</h1>
+        <p>Intelligent automation, seamless integrations, and tools that work the way you do.</p>
       </section>
 
       <hr />
