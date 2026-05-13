@@ -122,23 +122,28 @@ export default async function Home() {
           </div>
 
           {/* Card 3 */}
-          <div className="project-card">
+          <a
+            href="https://company-jjvx.onrender.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="project-card project-card-link"
+          >
             <div className="flex justify-between items-start mb-3 gap-2">
               <div className="flex flex-wrap gap-2 text-xs font-semibold card-meta">
-                <span>Python</span>
-                <span>LangChain</span>
-                <span>Groq API</span>
+                <span>Claude API</span>
+                <span>React</span>
+                <span>Node.js</span>
               </div>
-              <span className="text-xs card-meta">
-                Completed
+              <span className="text-xs card-meta hover-link transition-colors">
+                View →
               </span>
             </div>
             
-            <h3 className="project-card-title">Research Assistant Chatbot</h3>
+            <h3 className="project-card-title">Company Intelligence</h3>
             <p className="project-description">
-              A domain-specific research assistant built on LangChain that maintains conversational context across multi-turn queries with prompt engineering and tool chaining.
+              An AI-powered interview prep platform that transforms company research into structured intelligence briefings. Analyzes tech stacks, business models, and industry insights to generate personalized interview guidance.
             </p>
-          </div>
+          </a>
 
           {/* Card 4 */}
           <div className="project-card">
