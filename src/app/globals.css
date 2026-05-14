@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap');
 
 /* CSS Variables - Theme System */
 html.theme-night {
@@ -11,6 +11,8 @@ html.theme-night {
   --accent: #06b6d4;
   --accent-dim: #0e7490;
   --accent-glow: rgba(6, 182, 212, 0.15);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 html.theme-ink {
@@ -23,6 +25,8 @@ html.theme-ink {
   --accent: #111111;
   --accent-dim: #333333;
   --accent-glow: rgba(17, 17, 17, 0.08);
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
 }
 
 html.theme-terminal {
@@ -35,6 +39,8 @@ html.theme-terminal {
   --accent: #22c55e;
   --accent-dim: #16a34a;
   --accent-glow: rgba(34, 197, 94, 0.15);
+  --font-display: 'Space Mono', monospace;
+  --font-body: 'Space Mono', monospace;
 }
 
 /* Default to Night theme */
@@ -101,6 +107,55 @@ body {
   font-family: var(--font-body);
   line-height: 1.6;
   transition: background-color 0.3s, color 0.3s;
+  position: relative;
+}
+
+/* Keep all content above theme pattern overlays */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Theme background patterns */
+html.theme-night body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--accent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-attachment: fixed;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+
+html.theme-ink body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Ctext font-family='monospace' font-size='11' fill='%23111111' opacity='0.25'%3E%3Ctspan x='20' y='30'%3E%3Cbody%3E%3C/tspan%3E%3Ctspan x='40' y='52'%3E%3Ch1%3E%3C/tspan%3E%3Ctspan x='60' y='74'%3EHello World%3C/tspan%3E%3Ctspan x='40' y='96'%3E%3C/h1%3E%3C/tspan%3E%3Ctspan x='40' y='118'%3E%3Cdiv class='container'%3E%3C/tspan%3E%3Ctspan x='60' y='140'%3E%3Cp%3E%3C/tspan%3E%3Ctspan x='80' y='162'%3ESome content here%3C/tspan%3E%3Ctspan x='60' y='184'%3E%3C/p%3E%3C/tspan%3E%3Ctspan x='60' y='206'%3E%3Cspan%3EOops. Hello World!%3C/span%3E%3C/tspan%3E%3Ctspan x='40' y='228'%3E%3C/div%3E%3C/tspan%3E%3Ctspan x='20' y='250'%3E%3C/body%3E%3C/tspan%3E%3C/text%3E%3C/svg%3E");
+  background-size: 400px 280px;
+  background-attachment: fixed;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+html.theme-terminal body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    var(--accent) 0px,
+    var(--accent) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  background-attachment: fixed;
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 0;
 }
 
 h1, h2, h3, h4 {
