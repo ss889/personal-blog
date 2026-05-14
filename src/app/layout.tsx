@@ -4,6 +4,7 @@ import Script from "next/script";
 import Navigation from "./nav";
 import { ChatProvider } from "@/lib/ChatContext";
 import ChatLayoutWrapper from "./ChatLayoutWrapper";
+import BackgroundPattern from "@/components/BackgroundPattern";
 import ScrollAnimationProvider from "./ScrollAnimationProvider";
 import "./globals.css";
 
@@ -47,13 +48,16 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ChatProvider>
-          <Navigation />
-          <ScrollAnimationProvider>
-            {children}
-          </ScrollAnimationProvider>
-          <ChatLayoutWrapper />
-        </ChatProvider>
+        <BackgroundPattern />
+        <div className="site-shell">
+          <ChatProvider>
+            <Navigation />
+            <ScrollAnimationProvider>
+              {children}
+            </ScrollAnimationProvider>
+            <ChatLayoutWrapper />
+          </ChatProvider>
+        </div>
       </body>
     </html>
   );
