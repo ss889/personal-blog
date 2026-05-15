@@ -28,7 +28,7 @@ export default async function Home() {
           <div className="cta-group">
             <a href="#projects" className="btn-primary">View my work ↓</a>
             <a href="https://github.com/ss889" target="_blank" rel="noopener noreferrer" className="btn-secondary">GitHub ↗</a>
-            <a href="https://cockpit-production-4ff4.up.railway.app" target="_blank" rel="noopener noreferrer" className="btn-secondary">Live: Career Cockpit ↗</a>
+            <a href="https://cockpit-production-4ff4.up.railway.app" target="_blank" rel="noopener noreferrer" className="btn-secondary">Live: JobOps AI ↗</a>
           </div>
         </HeroBodyMotion>
       </section>
@@ -40,14 +40,14 @@ export default async function Home() {
         <h2 className="section-title">Featured projects</h2>
         <div className="projects-grid">
           <a href="https://cockpit-production-4ff4.up.railway.app" target="_blank" rel="noopener noreferrer" className="project-card">
-            <div className="project-image">AI Career Intelligence Cockpit</div>
+            <div className="project-image">JobOps AI</div>
             <div className="project-body">
               <div className="project-tags">
                 <span className="project-tag">Claude API</span>
                 <span className="project-tag">Web Search</span>
                 <span className="project-tag">Next.js</span>
               </div>
-              <h3 className="project-title">AI Career Intelligence Cockpit</h3>
+              <h3 className="project-title">JobOps AI</h3>
               <p className="project-description">A sidebar-driven operator dashboard with three panels: Analyze job descriptions with Claude, Search live job listings via web search, and Track saved jobs with status management.</p>
               <div className="project-footer">
                 <span className="project-status status-live">Live</span>
