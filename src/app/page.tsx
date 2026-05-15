@@ -1,5 +1,6 @@
 import { getAllPosts } from "@/lib/markdown";
 import Link from "next/link";
+import Image from "next/image";
 import AnimatedSection from "@/components/AnimatedSection";
 import HeroHeading from "@/components/HeroHeading";
 import HeroBodyMotion from "@/components/HeroBodyMotion";
@@ -40,7 +41,9 @@ export default async function Home() {
         <h2 className="section-title">Featured projects</h2>
         <div className="projects-grid">
           <a href="https://cockpit-production-4ff4.up.railway.app" target="_blank" rel="noopener noreferrer" className="project-card">
-            <div className="project-image">AI Career Intelligence Cockpit</div>
+            <div className="project-image">
+              <Image src="/images/cockpit.png" fill style={{ objectFit: 'cover' }} alt="AI Career Intelligence Cockpit" />
+            </div>
             <div className="project-body">
               <div className="project-tags">
                 <span className="project-tag">Claude API</span>
@@ -57,7 +60,9 @@ export default async function Home() {
           </a>
 
           <div className="project-card">
-            <div className="project-image">Agentic Blog Platform</div>
+            <div className="project-image">
+              <Image src="/images/blog.png" fill style={{ objectFit: 'cover' }} alt="Agentic Blog Platform" />
+            </div>
             <div className="project-body">
               <div className="project-tags">
                 <span className="project-tag">MCP</span>
@@ -74,7 +79,9 @@ export default async function Home() {
           </div>
 
           <a href="https://company-jjvx.onrender.com/" target="_blank" rel="noopener noreferrer" className="project-card">
-            <div className="project-image">Company Intelligence</div>
+            <div className="project-image">
+              <Image src="/images/company.png" fill style={{ objectFit: 'cover' }} alt="Company Intelligence" />
+            </div>
             <div className="project-body">
               <div className="project-tags">
                 <span className="project-tag">Claude API</span>
@@ -91,7 +98,9 @@ export default async function Home() {
           </a>
 
           <div className="project-card">
-            <div className="project-image">AI Funding Data Scraper</div>
+            <div className="project-image">
+              <Image src="/images/scraper.png" fill style={{ objectFit: 'cover' }} alt="AI Funding Data Scraper" />
+            </div>
             <div className="project-body">
               <div className="project-tags">
                 <span className="project-tag">Python</span>
