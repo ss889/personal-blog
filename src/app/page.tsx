@@ -28,7 +28,7 @@ export default async function Home() {
           <div className="cta-group">
             <a href="#projects" className="btn-primary">View my work ↓</a>
             <a href="https://github.com/ss889" target="_blank" rel="noopener noreferrer" className="btn-secondary">GitHub ↗</a>
-            <a href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/" target="_blank" rel="noopener noreferrer" className="btn-secondary">Live: Career Cockpit ↗</a>
+            <a href="https://cockpit-production-4ff4.up.railway.app" target="_blank" rel="noopener noreferrer" className="btn-secondary">Live: Career Cockpit ↗</a>
           </div>
         </HeroBodyMotion>
       </section>
@@ -39,7 +39,7 @@ export default async function Home() {
         <p className="section-label">// WORK</p>
         <h2 className="section-title">Featured projects</h2>
         <div className="projects-grid">
-          <a href="https://cockpit-cnd0chh2l-ss889s-projects.vercel.app/" target="_blank" rel="noopener noreferrer" className="project-card">
+          <a href="https://cockpit-production-4ff4.up.railway.app" target="_blank" rel="noopener noreferrer" className="project-card">
             <div className="project-image">AI Career Intelligence Cockpit</div>
             <div className="project-body">
               <div className="project-tags">
